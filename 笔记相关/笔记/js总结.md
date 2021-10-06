@@ -2363,3 +2363,29 @@ xhr.onreadystatechange = function(){
 ## 六、数据传输形式
 
 ### 6.1、XML形式
+
+​				XML 的英文全称是 EXtensible Markup Language ，即**可扩展标记语言**。因此， XML 和 HTML 类似，也是一种标记语言
+
+​				**XML和HTML区别**： XML 和 HTML 虽然都是标记语言，但是，它们两者之间没有任何的关系。
+
+​													HTML 被设计用来描述网页上的**内容**，是网页内容的载体
+
+​													XML 被设计用来**传输和存储数据**，是数据的载体
+
+​													XML 格式臃肿，和数据无关的代码多，体积大，传输效率低
+
+​													在 Javascript 中解析 XML 比较麻烦
+
+
+
+### 6.2、JSON形式
+
+​					**概念：**`JSON` 的英文全称是 `JavaScript Object Notation`，即“**JavaScript 对象表示法**”。简单来讲，`	JSON` 就是 `Javascript` 对象和数组的字								 符串表示法，它使用文本表示一个 `JS` 对象或数组的信息，因此，**`JSON` 的本质是字符串**。
+
+​					**作用：**`JSON` 是一种轻量级的文本数据交换格式，在作用上类似于 `XML`，专门用于存储和传输数据，但是 `JSON` 比 `XML` 更小、更快、更易解析。        
+
+​					**两种结构：**对象结构，使用{}包裹		可以存储**string、number、boolean、null、数组、对象**这六种数组类型
+
+​									   数组结构，使用[]包裹		可以存储**string、number、boolean、null、数组、对象**这六种数组类型
+
+​					**序列化和反序列化：**将数据对象转化成json字符串的过程叫做**序列化**      将json字符串转换成数据对象的过程叫做**反序列化**
