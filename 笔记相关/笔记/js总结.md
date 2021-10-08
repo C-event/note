@@ -2389,3 +2389,375 @@ xhr.onreadystatechange = function(){
 ​									   数组结构，使用[]包裹		可以存储**string、number、boolean、null、数组、对象**这六种数组类型
 
 ​					**序列化和反序列化：**将数据对象转化成json字符串的过程叫做**序列化**(JSON.stringify)   将json字符串转换成数据对象的过程叫做**反序列化**(JSON.parse)
+
+
+
+### 6.2、XMLHttpRequest Level2`的新功能★
+
+- 可以设置 HTTP 请求的时限
+
+- 可以使用 `FormData` 对象管理表单数据
+
+- 可以上传文件
+
+- 可以获得数据传输的进度信息
+
+#### 设置`HTTP`请求时限
+
+有时，`Ajax` 操作很耗时，而且无法预知要花多少时间。如果网速很慢，用户可能要等很久。新版本的 `XMLHttpRequest` 对象，增加了 `timeout` 属性，可以设置 `HTTP` 请求的时限：
+
+![](E:/前端资料/Ajax资料/Day03/02.笔记/images/超时时间.png)
+
+上面的语句，将最长等待时间设为 3000 毫秒。过了这个时限，就自动停止HTTP请求。与之配套的还有一个
+
+`timeout` 事件，用来指定回调函数：
+
+![](E:/前端资料/Ajax资料/Day03/02.笔记/images/超时回调.png)
+
+```javascript
+<script>
+  var xhr = new XMLHttpRequest()
+  // 设置 超时时间
+  xhr.timeout = 30
+  // 设置超时以后的处理函数
+  xhr.ontimeout = function () {
+    console.log('请求超时了！')
+  }
+  xhr.open('GET', 'http://www.liulongbin.top:3006/api/getbooks')
+  xhr.send()
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      console.log(xhr.responseText)
+    }
+  }
+</script>
+```
+
+#### `FormData`对象管理表单数据Ajax 操作往往用来提交表单数据。为了方便表单处理，`HTML5` 新增了一个 `FormData` 对象，可以模拟表单操作：
+
+```javascript
+ // 1. 新建 FormData 对象
+ var fd = new FormData()
+ // 2. 为 FormData 添加表单项
+ fd.append('uname', 'zs')
+ fd.append('upwd', '123456')
+ // 3. 创建 XHR 对象
+ var xhr = new XMLHttpRequest()
+ // 4. 指定请求类型与URL地址
+ xhr.open('POST', 'http://www.liulongbin.top:3006/api/formdata')
+ // 5. 直接提交 FormData 对象，这与提交网页表单的效果，完全一样
+ xhr.send(fd) //send方法可以接收查询字符串，也可以接收FormData对象
+```
+
+#### `FormData`对象管理表单数据
+
+`FormData`对象也可以用来获取网页表单的值，示例代码如下：
+
+```javascript
+// 获取表单元素
+var form = document.querySelector('#form1')
+// 监听表单元素的 submit 事件
+form.addEventListener('submit', function(e) {
+ e.preventDefault()
+ // 根据 form 表单创建 FormData 对象，会自动将表单数据填充到 FormData 对象中
+ var fd = new FormData(form)
+ var xhr = new XMLHttpRequest()
+ xhr.open('POST', 'http://www.liulongbin.top:3006/api/formdata')
+ xhr.send(fd)
+ xhr.onreadystatechange = function() {}
+})
+```
+
+#### 上传文件
+
+新版 `XMLHttpRequest` 对象，不仅可以发送文本信息，还可以上传文件。
+
+**实现步骤：**
+
+① 定义 `UI` 结构
+
+② 验证是否选择了文件
+
+③ 向 `FormData` 中追加文件
+
+④ 使用 `xhr` 发起上传文件的请求
+
+⑤ 监听 `onreadystatechange` 事件
+
+#### 定义`UI`结构
+
+```html
+ <!-- 1. 文件选择框 -->
+ <input type="file" id="file1" />
+ <!-- 2. 上传按钮 -->
+ <button id="btnUpload">上传文件</button>
+ <br />
+ <!-- 3. 显示上传到服务器上的图片 -->
+ <img src="" alt="" id="img" width="800" />
+```
+
+#### 验证是否选择了文件
+
+```javascript
+// 1. 获取上传文件的按钮
+var btnUpload = document.querySelector('#btnUpload')
+// 2. 为按钮添加 click 事件监听
+btnUpload.addEventListener('click', function() {
+ // 3. 获取到选择的文件列表
+ var files = document.querySelector('#file1').files
+ if (files.length <= 0) {
+ return alert('请选择要上传的文件！')
+ }
+ // ...后续业务逻辑
+})
+```
+
+#### 向`FormData`中追加文件
+
+```javascript
+// 1. 创建 FormData 对象
+var fd = new FormData()
+// 2. 向 FormData 中追加文件
+fd.append('avatar', files[0])
+```
+
+#### 使用 `xhr` 发起上传文件的请求
+
+```javascript
+// 1. 创建 xhr 对象
+var xhr = new XMLHttpRequest()
+// 2. 调用 open 函数，指定请求类型与URL地址。其中，请求类型必须为 POST
+xhr.open('POST', 'http://www.liulongbin.top:3006/api/upload/avatar')
+// 3. 发起请求
+xhr.send(fd)
+```
+
+####  监听`onreadystatechange`事件
+
+```javascript
+xhr.onreadystatechange = function() {
+ if (xhr.readyState === 4 && xhr.status === 200) {
+ 	 var data = JSON.parse(xhr.responseText)
+     if (data.status === 200) { // 上传文件成功
+     // 将服务器返回的图片地址，设置为 <img> 标签的 src 属性
+        document.querySelector('#img').src = 'http://www.liulongbin.top:3006' + data.url
+     } else { // 上传文件失败
+         console.log(data.message)
+     }
+ }
+}
+```
+
+#### 显示文件上传进度
+
+##### 计算文件上传进度新版本的 `XMLHttpRequest` 对象中，可以通过监听 `xhr.upload.onprogress` 事件，来获取到文件的上传进度。语法格式如下：
+
+```javascript
+// 创建 XHR 对象
+var xhr = new XMLHttpRequest()
+// 监听 xhr.upload 的 onprogress 事件
+xhr.upload.onprogress = function(e) {
+     // e.lengthComputable 是一个布尔值，表示当前上传的资源是否具有可计算的长度
+     if (e.lengthComputable) { 
+         // e.loaded 已传输的字节
+         // e.total 需传输的总字节
+         var percentComplete = Math.ceil((e.loaded / e.total) * 100)//这里用ceil或者floor都可以，只是取个整
+     }
+ }
+// computable : 可计算的，lengthComputable理解：如果长度可计算，说明有长度，那么才能计算上传的进度
+```
+
+##### 导入需要的库
+
+```html
+<link rel="stylesheet" href="./lib/bootstrap.css" />
+<script src="./lib/jquery.js"></script>
+```
+
+##### 基于`Bootstrap`渲染进度条
+
+```html
+ <!-- 进度条 -->
+ <div class="progress" style="width: 500px; margin: 10px 0;">
+     <div class="progress-bar progress-bar-info progress-barstriped active" id="percent" style="width: 0%">
+     0%
+     </div>
+ </div>
+```
+
+##### 动态设置到进度条上
+
+```javascript
+xhr.upload.onprogress = function(e) {
+     if (e.lengthComputable) {
+         // 1. 计算出当前上传进度的百分比 （percent：百分比，complete：完成）
+         var percentComplete = Math.ceil((e.loaded / e.total) * 100)
+         $('#percent')
+         // 2. 设置进度条的宽度
+         .attr('style', 'width:' + percentComplete + '%')
+         // 3. 显示当前的上传进度百分比
+         .html(percentComplete + '%')
+     }
+}
+```
+
+##### 监听上传完成的事件
+
+```javascript
+xhr.upload.onload = function() {
+     $('#percent')
+     // 移除上传中的类样式
+     .removeClass()
+     // 添加上传完成的类样式
+     .addClass('progress-bar progress-bar-success')
+}
+```
+
+
+
+## 七、同源与跨域
+
+### 7.1、同源
+
+​			如果两个页面协议、域名、端口都相同，我们就说这两个页面同源
+
+![](C:\Users\12286\Desktop\我的文件\笔记相关\同源判断.png)
+
+
+
+**同源策略：**是浏览器提供的一个安全功能 MDN 官方给定的概念：同源策略限制了从同一个源加载的文档或脚本如何与来自另一个源的资源进行 交互。这是一个					用于隔离潜在恶意文件的重要安全机制 通俗的理解：浏览器规定，A 网站的 JavaScript，不允许和非同源的网站 C 之间，进行资源的交互，
+
+​					例 如： ①无法读取非同源网页的 Cookie、LocalStorage 和 IndexedDB 
+
+​								 ② 无法接触非同源网页的 DOM
+
+​								 ③ 无法向非同源地址发送 Ajax 请求
+
+
+
+### 7.2、跨域
+
+​				同源指的是两个 URL 的协议、域名、端口一致，反之，则是**跨域** 
+
+​				**出现跨域的根本原因**：浏览器的同源策略不允许非同源的 URL 之间进行资源的交互
+
+
+
+**解决跨域的两种方法：**JSONP和CORS
+
+
+
+#### 7.2.1、JSONP
+
+​				JSONP ( JSON with Padding ) 是 JSON 的一种“使用模式”，可用于解决主流浏览器的跨域数据访问的 问题。
+
+​				**实现原理**就是利用script标签中src属性不受同源策略影响
+
+```js
+//jq实现JSONP
+$.ajax({
+		url: 'http://ajax.frontend.itheima.net:3006/api/jsonp?name=zs&age=20',
+		dataType: 'jsonp',
+		jsonp: 'callback',					// 发送到服务端的参数名称，默认值为 callback  一般省略不写
+		jsonpCallback: 'abc',				// 自定义的回调函数名称，默认值为 jQueryxxx 格式  一般省略不写
+		success: function(res) {
+		console.log(res)
+		}
+})
+```
+
+**缺点**：由于 `JSONP` 是通过 `<script>` 标签的 `src` 属性，来实现跨域数据获取的，所以，`JSONP` 只支持 `GET` 数据请求，不支持 POST 请求。
+
+​			**因为script本意是引入资源，也就是获取某个js文件，所以只能获取数据，只支持get**
+
+**注意：** **`JSONP` 和 Ajax 之间没有任何关系**，不能把 `JSONP` 请求数据的方式叫做 Ajax，因为 `JSONP` 没有用到`XMLHttpRequest` 这个对象
+
+
+
+#### 7.2.2、CORS
+
+
+
+
+
+
+
+## 八、防抖与节流
+
+### 8.1、防抖
+
+​				**防抖策略**是当事件被触发后，延迟 n 秒后再执行回调，如果在这 n 秒内事件又被触 发，则重新计时。
+
+​				应用场景：输入框输入时需要防抖
+
+```js
+	  var timer = null
+      // 定义全局缓存对象
+      var cacheObj = {} 
+	  function debounceSearch(kw) {
+        timer = setTimeout(function () {
+          getSuggestList(kw)
+        }, 500)
+      }
+
+      // 为输入框绑定 keyup 事件
+      $('#ipt').on('keyup', function () {
+        // 3. 清空 timer
+        clearTimeout(timer)
+        var keywords = $(this).val().trim()
+        if (keywords.length <= 0) {
+          return $('#suggest-list').empty().hide()
+        }
+
+        // 先判断缓存中是否有数据
+        if (cacheObj[keywords]) {
+          return renderSuggestList(cacheObj[keywords])
+        }
+
+        // TODO:获取搜索建议列表
+        // console.log(keywords)
+        // getSuggestList(keywords)
+        debounceSearch(keywords)
+      })
+
+      function getSuggestList(kw) {
+        $.ajax({
+          url: 'https://suggest.taobao.com/sug?q=' + kw,
+          dataType: 'jsonp',
+          success: function (res) {
+            // console.log(res)
+            renderSuggestList(res);						//渲染页面 并存储缓存
+          }
+        })
+      }
+```
+
+
+
+### 8.2、节流
+
+​				**节流策略**就是控制事件在某一段事件内，只能触发一次
+
+​				**应用场景：**① 鼠标连续不断地触发某事件（如点击），只在单位时间内只触发一次；
+
+​									② 懒加载时要监听计算滚动条的位置，但不必每次滑动都触发，可以降低计算的频率，而不必去浪费 CPU 资源；
+
+```js
+$(function() {
+     var angel = $('#angel')
+     var timer = null // 1.预定义一个 timer 节流阀
+     $(document).on('mousemove', function(e) {
+     if (timer) { return } // 3.判断节流阀是否为空，如果不为空，则证明距离上次执行间隔不足16毫秒
+     timer = setTimeout(function() {
+     $(angel).css('left', e.pageX + 'px').css('top', e.pageY + 'px')
+     timer = null // 2.当设置了鼠标跟随效果后，清空 timer 节流阀，方便下次开启延时器
+     }, 16)
+     })
+})
+```
+
+
+
+**总结**：**防抖**：如果事件被频繁触发，防抖能保证只有最有一次触发生效！前面 N 多次的触发都会被忽略！
+
+​			**节流**：如果事件被频繁触发，节流能够减少事件触发的频率，因此，节流是有选择性地执行一部分事件！
