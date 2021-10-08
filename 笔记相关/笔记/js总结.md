@@ -2388,4 +2388,4 @@ xhr.onreadystatechange = function(){
 
 ​									   数组结构，使用[]包裹		可以存储**string、number、boolean、null、数组、对象**这六种数组类型
 
-​					**序列化和反序列化：**将数据对象转化成json字符串的过程叫做**序列化**(JSON.stringify())      将json字符串转换成数据对象的过程叫做**反序列化**(JSON.parse())
+​					**序列化和反序列化：**将数据对象转化成json字符串的过程叫做**序列化**(JSON.stringify)   将json字符串转换成数据对象的过程叫做**反序列化**(JSON.parse)
