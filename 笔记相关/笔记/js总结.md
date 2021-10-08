@@ -1704,6 +1704,8 @@ Object.defineProperty(obj,"value",{
 
 ​				缺点：内存泄漏
 
+​				应用场景：立即执行函数
+
 ```js
 //使用闭包实现点击输出每个li的索引
 var lis = document.querySelectorAll("li");
@@ -1823,6 +1825,7 @@ function deepclone(newobj,oldobj){
             newobj[k] = obj;
         }
     }
+    return newobj;
 }
 ```
 
