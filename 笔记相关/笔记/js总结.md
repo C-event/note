@@ -2049,6 +2049,30 @@ $.ajax({
 
 
 
+### 2.4、发送FormData数据
+
+​			`FormData`对象，是可以使用一系列的键值对来模拟一个完整的表单，然后使用`XMLHttpRequest`发送这个"表单"。
+
+```js
+//创建FormData对象
+var fd = new FormData($("form")[0]);				//获取form表单里面的值  只能接收dom对象
+
+//发送ajax请求
+ $.ajax({
+      method: 'POST',
+      url: '/my/article/add',
+      data: fd,										//data数据接收FormData对象
+      contentType: false,							
+      //contentType设置为false。因为是由<form>表单构造的FormData对象，且已经声明了属性enctype="multipart/form-data"，所以这里设置为false。
+      processData: false,							//processData设置为false。因为data值是FormData对象，不需要对数据做处理。
+      success: function (res) {
+        console.log(res);
+      }
+    })
+```
+
+
+
 ## 三、form中相关属性
 
 ### 3.1、action属性
