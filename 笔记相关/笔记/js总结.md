@@ -2409,13 +2409,7 @@ xhr.onreadystatechange = function(){
 
 有时，`Ajax` 操作很耗时，而且无法预知要花多少时间。如果网速很慢，用户可能要等很久。新版本的 `XMLHttpRequest` 对象，增加了 `timeout` 属性，可以设置 `HTTP` 请求的时限：
 
-![](E:/前端资料/Ajax资料/Day03/02.笔记/images/超时时间.png)
-
-上面的语句，将最长等待时间设为 3000 毫秒。过了这个时限，就自动停止HTTP请求。与之配套的还有一个
-
 `timeout` 事件，用来指定回调函数：
-
-![](E:/前端资料/Ajax资料/Day03/02.笔记/images/超时回调.png)
 
 ```javascript
 <script>
