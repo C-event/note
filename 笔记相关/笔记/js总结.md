@@ -315,7 +315,7 @@ for(var i = 0;i < arr.length;i++){
 
 //使用filter去重	原理 使用indexof返回元素的第一个索引号 判断第一个索引是否等于当前索引实现去重
 var newarr = arr.filter(functiton(value,index,array){
-	return arrat.indexOf(value) == index;                        
+	return array.indexOf(value) == index;                        
 })
 ```
 
