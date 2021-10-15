@@ -1,3 +1,7 @@
+
+
+
+
 # JS基础
 
 #### 1、js简介
@@ -315,7 +319,7 @@ for(var i = 0;i < arr.length;i++){
 
 //使用filter去重	原理 使用indexof返回元素的第一个索引号 判断第一个索引是否等于当前索引实现去重
 var newarr = arr.filter(functiton(value,index,array){
-	return array.indexOf(value) == index;                        
+	return arrat.indexOf(value) == index;                        
 })
 ```
 
@@ -552,7 +556,7 @@ var str = "abcc";
 str.substr("2",1);						//截取字符串 从索引号2开始，向后截取1一个元素 返回的是截取的字符串
 str.replace("c",d);						//替换字符串 从头开始c 把找到的第一个元素的设置为d 并返回一个新的字符串
 var newstr = "c";				
-newstr.concat(str);						//和数组方法相同  将str加入到newstr中 返回的是新数组 需要用变量来接收
+newstr.concat(str);						//和数组方法相同  将str加入到newstr中 返回的是新字符串 需要用变量来接收
 ★str.split("");							//将字符串转换成数组 	传入的是分隔符
 ★str.slice(beginIndex[, endIndex])		//提取某个字符串的一部分，并返回一个新的字符串，且不会改动原字符串
 ★str.indexOf(searchValue [, fromIndex])	//返回searchValue第一次出现在str中的索引 从fromIndex开始 不存在则返回-1
@@ -574,7 +578,7 @@ arr.slice(1,4);						//返回的数组是[2,3,4] 	原数组不改变
 
 
 
-​			**splice：**这个方法是数组的专属方法，用来截取数组，它与slice最大的区别就是它会改变原数组，而slice不会改变。它里面最多可以传三个参数，具体代码						  如下。
+​			**splice：**这个方法是数组的专属方法，用来截取数组，它与slice最大的区别就是它会**改变原数组**，而slice不会改变。它里面最多可以传三个参数，具体代码						  如下。
 
 ```js
 var arr = [1,2,3,4,5,6,7,8,9,10];
@@ -591,6 +595,31 @@ arr.splice(1,2,2,3);		//返回新数组是添加元素的数组[2,3]	arr=[1,2,3,
 var str = "abcdef";
 str.split("");				//将字符串转换成数组[a,b,c,d,e,f]   原字符串不会改变
 ```
+
+
+
+**字符串操作方法总结**
+
+|                    用法                     |             作用             | 是否改变原数据 |         返回值         |
+| :-----------------------------------------: | :--------------------------: | :------------: | :--------------------: |
+|          str.substr(start,length)           |     截取字符串(逐渐废弃)     |       否       |      截取的字符串      |
+|     str.substring(indexstart,indexend)      |    截取字符串(代替substr)    |       否       |      截取的字符串      |
+| str.replace(reg\|substr,newsubstr\|fuction) |          替换字符串          |       否       |   替换完成后的字符串   |
+|         str.concat(newstr,[..str])          | 将多个字符串合并成一个字符串 |       否       |   合并完成后的字符串   |
+|             str.split('分割符')             |       字符串分割成数组       |       否       |    返回分割后的数组    |
+|      str.slice(beginIndex,[EndIndex])       |  提取字符串(不包换EndIndex)  |       否       |      提取的字符串      |
+|      str.indexOf(seachStr,[fromIndex])      | 判断searchstr在str中是否存在 |       否       | 当前索引 \| -1(不存在) |
+|     str.includes(searchStr,[position])      | 判断searchstr在str中是否存在 |       否       | 布尔值(true \| false)  |
+
+
+
+**数组操作方法总结**
+
+| 用法 | 作用 | 是否改变原数据 | 返回值 |
+| :--: | :--: | :------------: | :----: |
+|      |      |                |        |
+|      |      |                |        |
+|      |      |                |        |
 
 
 
@@ -1704,8 +1733,6 @@ Object.defineProperty(obj,"value",{
 
 ​				缺点：内存泄漏
 
-​				应用场景：立即执行函数
-
 ```js
 //使用闭包实现点击输出每个li的索引
 var lis = document.querySelectorAll("li");
@@ -1825,7 +1852,6 @@ function deepclone(newobj,oldobj){
             newobj[k] = obj;
         }
     }
-    return newobj;
 }
 ```
 
@@ -2049,30 +2075,6 @@ $.ajax({
 
 
 
-### 2.4、发送FormData数据
-
-​			`FormData`对象，是可以使用一系列的键值对来模拟一个完整的表单，然后使用`XMLHttpRequest`发送这个"表单"。
-
-```js
-//创建FormData对象
-var fd = new FormData($("form")[0]);				//获取form表单里面的值  只能接收dom对象
-
-//发送ajax请求
- $.ajax({
-      method: 'POST',
-      url: '/my/article/add',
-      data: fd,										//data数据接收FormData对象
-      contentType: false,							
-      //contentType设置为false。因为是由<form>表单构造的FormData对象，且已经声明了属性enctype="multipart/form-data"，所以这里设置为false。
-      processData: false,							//processData设置为false。因为data值是FormData对象，不需要对数据做处理。
-      success: function (res) {
-        console.log(res);
-      }
-    })
-```
-
-
-
 ## 三、form中相关属性
 
 ### 3.1、action属性
@@ -2221,7 +2223,7 @@ $("#usersubmit").on("submit",function(e){
 
 ### 4.1、模板引擎原理(定义自己的模板引擎)
 
-#### 4.1.1、exec函数
+#### 4.2、exec函数
 
 ​				函数用于检索字符串中的正在表达式的匹配 如果字符串中又匹配的值，则返回该匹配值，否则返回 null
 
@@ -2242,7 +2244,7 @@ while(parres = pattern.exec(str)){
 
 
 
-#### 4.1.2、具体实现
+#### 4.3、具体实现
 
 ```js
 //封装template函数
@@ -2433,7 +2435,13 @@ xhr.onreadystatechange = function(){
 
 有时，`Ajax` 操作很耗时，而且无法预知要花多少时间。如果网速很慢，用户可能要等很久。新版本的 `XMLHttpRequest` 对象，增加了 `timeout` 属性，可以设置 `HTTP` 请求的时限：
 
+![](E:/前端资料/Ajax资料/Day03/02.笔记/images/超时时间.png)
+
+上面的语句，将最长等待时间设为 3000 毫秒。过了这个时限，就自动停止HTTP请求。与之配套的还有一个
+
 `timeout` 事件，用来指定回调函数：
+
+![](E:/前端资料/Ajax资料/Day03/02.笔记/images/超时回调.png)
 
 ```javascript
 <script>
