@@ -623,10 +623,14 @@ str.split("");				//将字符串转换成数组[a,b,c,d,e,f]   原字符串不�
 | arr.splice(start[, deleteCount[, item1[, item2[, ...]]]]) | 删除、替换、添加元素来修改数组 |       是       |   删除元素组成的数组   |
 |          arr.indexOf(searchValue [, fromIndex])           |     查询元素在数组中的索引     |       否       | 当前索引 \| -1(不存在) |
 |                   arr.concat(...value)                    |          合并多个数组          |       否       |    合并完成的新数组    |
+|                       arr.reverse()                       |            翻转数组            |       是       |      颠倒后的数组      |
+|                   arr.sort((a,b)=>a-b)                    |   数组排序(a-b升序  b-a降序)   |       是       |      排序后的数组      |
 
 
 
 **数组复杂方法总结**
+
+ 
 
 #### 10、堆和栈★
 
