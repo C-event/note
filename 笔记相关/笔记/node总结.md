@@ -71,3 +71,52 @@ server.listen(80,function(){
 res.setHeader('Content-Type','text/html;charset=utf-8');
 ```
 
+
+
+## 二、模块化
+
+​			将一个复杂的项目分解成多个小模块   将这些小模块组合起来就是一个完整的项目   如何需要更改相关功能   只需要更改相关模块的功能既可
+
+​			优点：**可复用   	可维护性强		按需加载**
+
+
+
+### 2.1、module模块
+
+​			 module模块是在导入包的时候 都会存在的模块 其中exports是该包向我们暴露的对象
+
+```js
+const fs = require('fs');
+console.log(module.exports);				//输出是fs模块暴露出来的对象
+```
+
+​			**注**：exports等价于module.exports，但我们要记住 **我们永远只导入module.exports里面的内容** 一般情况下不要在一个文件中同时使用这两个变量
+
+
+
+## 三、包
+
+​				Node.js 中的第三方模块又叫做包    由于 Node.js 的内置模块仅提供了一些底层的 API，导致在基于内置模块进行项目开发的时，效率很低。 包是基于内置模块封装出来的，提供了更高级、更方便的 API，极大的提高了开发效率。
+
+###  
+
+### 3.1、安装包
+
+```
+npm install 包名
+```
+
+之后的具体使用过程可以看当前包的文档 		官方文档： https://www.npmjs.com/
+
+
+
+### 3.2、文件中package.json和node_module
+
+​				在安装完包后 文件夹中会自动生成这两个文件 package.json中包含包名、版本号、作者等相关信息   node_module中包含该包中的源码。
+
+​				**注**：在我们使用git将代码同步到云仓库中 由于node_module文件太大 影响传输效率 通常我们会在.gitignore文件中忽略掉 不去同步到云端
+
+​						但在别人clone我们代码的使用 由于没有安装我们相关的包 是没法运行我们的项目 所以需要使用npm install去安装我们项目所需要的依赖
+
+​						因为我们在package.json中记录的包的名称和版本号 所以可以通过npm	install进行下载
+
