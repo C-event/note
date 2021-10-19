@@ -100,10 +100,20 @@ console.log(module.exports);				//输出是fs模块暴露出来的对象
 
 ###  
 
-### 3.1、安装包
+### 3.1、安装与卸载包
 
 ```
+# 安装包
 npm install 包名
+
+# 安装全局包
+npm install 包名 -g
+
+# 卸载包
+npm uninstall 包名
+
+# 卸载全局包
+npm uninstall 包名 -g
 ```
 
 之后的具体使用过程可以看当前包的文档 		官方文档： https://www.npmjs.com/
@@ -120,3 +130,304 @@ npm install 包名
 
 ​						因为我们在package.json中记录的包的名称和版本号 所以可以通过npm	install进行下载
 
+​						一般情况下 我们不去手动修改package.json里面的内容 	npm 会自动帮我们管理
+
+```
+# 安装package.json文件
+npm init -y
+```
+
+
+
+**开发依赖包**：在开发的过程中 所需要用到的包  文件名和版本号存储在package.json中**devDependencies**对象下
+
+```
+# 安装 开发依赖包
+npm install 包名 -D
+
+# 卸载 开发依赖包
+npm uninstall 包名 -D
+```
+
+**核心依赖包**：在开发和线上版本都需要使用的包  文件名和版本号存储在package.json中**dependencies**对象下  默认情况下安装的就是核心依赖包
+
+```
+# 安装 核心依赖包
+npm install 包名
+
+# 删除 核心依赖包
+npm uninstall 包名
+```
+
+
+
+**package.json中main对象的含义**：main对象的值 代表的是当前文件的入口函数 在导入这个文件的时候会优先执行main里面的.js文件  若没有则执行当前文件更															 目录下的index.js文件  若都没有则返回404
+
+
+
+## 四、模块的加载机制
+
+### 4.1、优先从缓存中加载
+
+​				模块在第一次加载后会被缓存。 这也意味着多次调用 require() 不会导致模块的代码被执行多次。 注意：不论是内置模块、用户自定义模块、还是第三方模块，它们都会优先从缓存中加载，从而提高模块的加载效率。
+
+```js
+//虽然导入了三次包 但是只会执行一次 
+const my = require('./my');
+const my = require('./my');
+const my = require('./my');
+```
+
+
+
+### 4.2、内置模块的加载机制
+
+​				内置模块是由 Node.js 官方提供的模块，内置模块的加载优先级最高。 例如，require('fs') 始终返回内置的 fs 模块，即使在 node_modules 目录下有名字相同的包也叫做 fs。
+
+```js
+//以内置模块为主
+const myfs = require('./fs');
+const fs = require('fs');
+```
+
+
+
+### 4.3、自定义模块的加载机制
+
+​				使用 require() 加载自定义模块时，必须指定以 ./ 或 ../ 开头的路径标识符。在加载自定义模块时，如果没有指定 ./ 或 ../ 这样的路径标识符，则 node 会把它当作内置模块或第三方模块进行加载。	
+
+​				同时，在使用 require() 导入自定义模块时，如果省略了文件的扩展名，则 Node.js 会按顺序分别尝试加载以下的文件：
+
+​				 	① 按照确切的文件名进行加载 
+
+​				 	② 补全 .js 扩展名进行加载
+
+​				 	③ 补全 .json 扩展名进行加载 
+
+​				 	④ 补全 .node 扩展名进行加载 										（.node扩展名是win32位编码文件）
+
+​				 	⑤ 加载失败，终端报错
+
+
+
+### 4.4、第三方模块加载机制
+
+​				如果传递给 require() 的模块标识符不是一个内置模块，也没有以 ‘./’ 或 ‘../’ 开头，则 Node.js 会从当前模块的父 目录开始，尝试从 /node_modules 文件夹中加载第三方模块。 **如果没有找到对应的第三方模块，则移动到再上一层父目录中，进行加载，直到文件系统的根目录。**
+
+​				例如，假设在 'C:\Users\itheima\project\foo.js' 文件里调用了 require('tools')，则 Node.js 会按以下顺序查找：
+
+​						 ① C:\Users\itheima\project\node_modules\tools 
+
+​						 ② C:\Users\itheima\node_modules\tools 
+
+​						 ③ C:\Users\node_modules\tools
+
+​						 ④ C:\node_modules\tools
+
+
+
+## 五、express第三方模块
+
+​				express与node.js中http模块类型 	都是用来创建web服务器的 	但他将http模块进行模块封装   比原本的http模块创建web服务器更加快速 更加极简
+
+
+
+### 5.1、使用express简单创建一个服务器
+
+```js
+//导入包
+const express = require('express');
+
+//创建web服务器
+const app = express();
+
+//启动服务器
+app.listen(80,()=>{
+    console.log('服务器启动成功   http://127.0.0.1:80')
+)
+```
+
+
+
+### 5.2、监听get和post请求
+
+```js
+//app.get(path,[中间块]，function(req,res){})
+app.get('/user/list',function(req,res){
+    res.send({name:'zs',age:20});						//服务器向客户端返回数据  返回的是json字符串
+})
+
+//app.post(path,[中间块]，function(req,res){})
+app.post('/user/add',function(req,res){
+    res.send('添加成功');						
+})
+```
+
+
+
+### 5.3、获取查询参数和动态参数
+
+```js
+//获取查询参数req.query  get请求传递过来的data对象  例如：http://127.0.0.1/?id=1&username=ls
+app.get('/',function(req,res){
+    console.log(req.query);					//在服务器中打印查询参数	返回的值为 {"id":"1","username":"ls"}					
+})
+
+//获取动态参数req.params	语法 /:属性值1/:属性值2/:属性值n		例如：http://127.0.0.1/1/zs
+app.get('/:id/:username',function(req,res){
+    console.log(req.params);				//返回的值为{"id":"1","username":"ls"}
+})
+```
+
+
+
+### 5.4、托管静态资源包
+
+```js
+//使用express.static
+const express = require('express');
+const path = require('path')
+
+const app = express();
+
+// 同时暴露多个页面   谁在前面谁先显示
+app.use(express.static('./file'));
+
+// 挂载浏览器访问前缀
+// app.use('/clock',express.static('./clock'));       //访问是需要通过路径 + /abc/index.html页面进行访问
+
+//解决路径动态拼接的问题
+app.use('/clock',express.static(path.join(__dirname,'/clock')))
+
+app.listen(80,function(){
+  console.log('启动成功');
+})
+```
+
+
+
+### 5.5、express路由
+
+#### 5.5.1、路由的匹配过程
+
+​				每当一个请求到达服务器之后，需要先经过路由的匹配，只有匹配成功之后，才会调用对应的处理函数。 在匹配时，会按照路由的顺序进行匹配，如果请求类型和请求的 URL 同时匹配成功，则 Express 会将这次请求，转 交给对应的 function 函数进行处理。
+
+![image-20211019204810595](D:\github\笔记相关\路由匹配过程图解)
+
+
+
+#### 5.5.2、实现一个简单的路由(路由模块化)
+
+```js
+//路由模块化		自定义路由模块包
+const express = require('express');
+const router = express.Router();
+
+router.get('/user/list',function(req,res){
+    console.log('这是一个简单的get路由')
+})
+
+router.post('/user/add',function(req,res){
+    console.log('这是一个简单的post路由')
+})
+
+//向外暴露router对象 
+module.exports = router;
+```
+
+```js
+const express = require('express');
+const app = express();
+const myrouter = require('./router.js')
+
+//定义一个简单的路由 
+//app.get('/user/list',function(req,res){
+//    console.log('这是一个简单的路由')
+//})
+
+//注册模块
+app.use(myrouter);
+
+app.listen(80,()=>{
+    console.log('服务器启动成功 http://127.0.0.1:80')
+})
+
+//在浏览器中访问该地址 会依次打印	这是一个简单的get路由	这是一个简单的post路由
+```
+
+
+
+#### 5.5.3、为路由添加前缀
+
+```js
+app.use('/api',myrouter)
+```
+
+
+
+### 5.6、中间件
+
+#### 5.6.1、概念与调用流程
+
+​				概念：中间件（Middleware ），特指业务流程的中间处理环节。
+
+​				调用流程：当一个请求到达 Express 的服务器之后，可以连续调用多个中间件，从而对这次请求进行预处理。
+
+![image-20211019211433961](D:\github\笔记相关\中间件调用流程图解)
+
+
+
+#### 5.6.2、定义一个简单的中间件函数
+
+```js
+const express = require('express');
+const app = express();
+
+// //定义一个简单的中间件    特点 : 中间件中包含next函数
+// const mw = function(req,res,next){
+//   console.log('这是一个最简单的中间件');
+
+//   // 将流转关系 转到下一个中间件或者是路由		若不写这行代码 程序将在这行卡住 不会去执行之后的中间件或者路由
+//   next();
+// }
+
+// // 将mw注册成为全局的中间件 在执行是先经过中间件再去执行之后的路由或者中间件
+// app.use(mw);
+
+// 简化定义中间件
+app.use(function(req,res,next){
+    const time = Date.now();
+    // 中间件与路由之间的req和res是共享的 在上游中间件上挂载属性 下游的中间件和路径也可以进行访问
+    req.startTime = time;
+    // 将流转关系 转到下一个中间件或者是路由		若不写这行代码 程序将在这行卡住 不会去执行之后的中间件或者路由
+    next();
+  })
+
+app.get('/',function(req,res){
+  res.send('home page' + req.startTime);
+})
+
+app.get('/user',function(req,res){
+  res.send('user page' + req.startTime)
+})
+
+app.listen(80,function(){
+  console.log('启动成功 http://127.0.0.1');
+})
+```
+
+**注: **① 一定要在路由之前注册中间件 
+
+​	  ② 客户端发送过来的请求，可以连续调用多个中间件进行处理
+
+​	  ③ 执行完中间件的业务代码之后，不要忘记调用 next() 函数 
+
+​	  ④ 为了防止代码逻辑混乱，调用 next() 函数后不要再写额外的代码 
+
+​	  ⑤ 连续调用多个中间件时，多个中间件之间，共享 req 和 res 对象
+
+
+
+### 5.7、错误级别的中间件
+
+​				用来捕获一个服务器中的错误 防止程序崩溃
