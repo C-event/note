@@ -428,6 +428,178 @@ app.listen(80,function(){
 
 
 
+```js
+//定义中间件
+const mw1 = function(req,res,next){
+    console.log('这是中间件一');
+    next();
+}
+
+const mw2 = function(req,res,next){
+    console.log('这是中间件二');
+    next();
+}
+
+const mw3 = function(req,res,next){
+    console.log('这是中间件三');
+    next();
+}
+
+//暴露多个全局中间件  中间用，隔开  之后的路由和中间件必须经过mw1和mw2之后 才去执行之后的代码
+app.use(mw1,mw2);				//app.use([mw1,mw2])另一种写法
+
+//定义一个局部的中间件   在执行app.get时先经过mw1和mw2中间件后 还需要去执行mw3中间件 才会执行之后的程序
+app.get('/user',mw3,function(req,res){
+    res.send('这是GET请求');
+})
+```
+
+
+
 ### 5.7、错误级别的中间件
 
-​				用来捕获一个服务器中的错误 防止程序崩溃
+​				用来捕获一个服务器中的错误 防止程序崩溃  **它与其他中间件不同的一点就是 他需要写在所有路由和中间件后面**
+
+```js
+const express = require('express');
+const app = express();
+
+//写一个简单的路由
+app.get('/',function(req,res){
+    //人为手动抛出一个错误
+    throw new Error('服务器内部错误')
+    res.send(req.query);						//抛出错误时  之后的代码不在执行
+})
+
+//错误级别的中间件    function(err,req,res,next){}		错误级别的中间件比普通中间件多一个err形参
+//若没有错误级别的中间件 用户访问客户端会导致页面崩溃  若有该中间件则会返回报错信息 程序不会崩溃
+app.use((err,req,res,next) => {
+    //在服务器端打印错误信息
+    console.log("Error:" + err.message);
+    //将错误信息返回给客户端
+    res.send("Error:" + err.message)
+})
+
+app.listen(80,function(){
+    console.log('服务器已经启动  http://127.0.0.1')
+})
+```
+
+
+
+### 5.8、自定义中间件模块
+
+```js
+//中间件模块
+var URLSearchParams = require('url-search-params');			//导入第三方处理JSON数据和表单数据的包
+
+function myParams(req,res,next){
+  let str = "";
+  // 数据提交时 会触发该事件
+  req.on('data',function(chunk){
+      // 将提交的数据进行拼接
+      str += chunk
+  })
+
+  // 数据提交完成时 会触发该事件
+  req.on("end",function(){
+    // 打印客户端传递来的数据   是字符串格式的数据
+    // console.log(str);
+    // TODO:将字符串解析成为对象
+    // const body = qs.parse(str);
+    const body = new URLSearchParams(str);
+    console.log(body);
+  })
+
+  next();
+}
+
+module.exports = myParams;
+
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+//启动web服务器
+const express = require('express');
+
+const app = express();
+
+//该模块已被弃用 建议使用url-search-params模块
+// const qs = require('querystring');
+
+//导入自己的中间件模块
+const myParams = require('./自定义中间件模块化');
+
+app.use(myParams)
+
+app.get('/user',function(req,res){
+    res.send('ok')
+})
+
+app.listen(80,function(){
+  console.log("http://127.0.0.1");
+})
+```
+
+
+
+### 5.9、自定义接口
+
+```js
+//启动web服务器
+const express = require('express');
+
+const app = express();
+
+//处理表单传递过来的数据
+app.use(express.urlencoded({extended:false}))
+
+//导入cors模块  解决跨域问题
+const cors = require('cors');
+
+//将cors在全局定义
+app.use(cors())
+
+const apirouter = require('./apiRouter');
+
+//为所有接口添加api访问前缀
+app.use('/api',apirouter)
+
+app.listen(80,function(){
+  console.log('服务器启动成功 http://127.0.0.1');
+})
+
+
+---------------------------------------------------------------------
+    
+    
+//接口模块		apiRouter.js
+const express = require('express');
+
+const router = express.Router();
+
+router.get('/user',function(req,res){
+    //获取查询字符串
+    let query = req.query;
+    res.send({
+      status:0,
+      msg:'GET请求成功',
+      data:query
+    })
+})
+
+router.post('/add',function(req,res){
+  //获取表单数据
+  let body = req.body;
+  res.send({
+    status:0,
+    msg:'POST请求成功',
+    data:body
+  })
+})
+
+module.exports = router;    
+```
+
