@@ -2092,7 +2092,32 @@ $.ajax({
 })
 ```
 
+**注意：我们在执行ajax前  都会先执行  ajaxPrefilter 函数  这样我们在进行ajax请求进行身份认证时  我们可以将身份参数(token)   写在该函数里面  减少了每次请求时都需要进行token的设置** 
 
+```js
+$.ajaxPrefilter(function (options) {
+    //添加ajax的根目录  之后在ajax中我只需要写接口的路径即可
+  options.url = "http://www.liulongbin.top:3008" + options.url;
+	
+    //判断请求的接口是否需要携带token 需要的化会自动携带请求头 
+  if (options.url.indexOf('/my') !== -1) {
+    options.headers = {
+        //从浏览器中取token中 若有就传递 若没有就传递一个空字符串
+      Authorization: localStorage.getItem("token") || ''
+    }
+  };
+	
+    //判断用户身份信息是否正确 不正确就删除本地的token值  并且回到登录页
+  options.complete = function (res) {
+    if (res.responseJSON.code == 1 && res.responseJSON.message == "身份认证失败！") {
+      localStorage.removeItem("token");
+      location.href = '/login.html'
+    }
+  }
+})
+```
+
+  
 
 ## 三、form中相关属性
 
