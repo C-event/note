@@ -2107,6 +2107,7 @@ $.ajaxPrefilter(function (options) {
     }
   };
 	
+    //无论请求的成功或者失败 都会调用complete函数 
     //判断用户身份信息是否正确 不正确就删除本地的token值  并且回到登录页
   options.complete = function (res) {
     if (res.responseJSON.code == 1 && res.responseJSON.message == "身份认证失败！") {
