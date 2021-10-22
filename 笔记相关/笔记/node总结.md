@@ -429,7 +429,7 @@ app.listen(80,function(){
 
 
 ```js
-//定义中间件
+//定义多个中间件
 const mw1 = function(req,res,next){
     console.log('这是中间件一');
     next();
@@ -602,4 +602,212 @@ router.post('/add',function(req,res){
 
 module.exports = router;    
 ```
+
+
+
+
+
+
+
+# MySQL相关知识
+
+## 一、sql语句增删改查
+
+**查询：**
+
+```sql
+-- 查询user表中所有的数据
+select * from user
+
+-- 查询user表中username和password数据
+select username,password from user
+
+-- 为查询出的username和password起别名
+select username as uname , password as upwd from user
+
+-- 查询user表中id > 2并且status = 0的数据   其中不等于号用 <> 或者 != 来表示
+select * from user where id > 2 and status = 0
+
+-- 查询user表中id > 2或者status = 0的数据
+select * from user where id > 2 and status = 0
+
+-- 将查找出来的数据按照id升序排序			asc代表的是升序 默认是升序排序 可以忽略不写
+select * from user order by id asc 
+
+-- 将查找出来的数据按照id降序排序
+select * from user order by id desc
+
+-- 先按照状态进行降序排序  再对username进行升序排序
+select * from user order by status desc,username asc;
+```
+
+
+
+**增加：**
+
+```sql
+-- 向user表中插入数据 其中username=wangwu  password=666666
+insert into user(username, password) values ('wangwu','666666');
+```
+
+
+
+**修改：**
+
+```sql
+-- 修改id = 2 密码为qazwsxedc   注：一定要添加where子句 不然回导致将数据库中所有数据的密码都改变成qazwsxedc
+update user set password='qazwsxedc' where id=2;
+
+-- 修改id = 1 密码为123456789 username为zhangsan 
+update user set username='zhangsan',password='123456789' where id=1;
+```
+
+
+
+**删除：**
+
+```sql
+-- 删除id=4的数据
+delete from user where id=4;
+```
+
+
+
+## 二、连接数据库
+
+```
+# 先下载第三方库 mysql
+npm i mysql
+```
+
+```js
+const mysql = require('mysql');
+
+//连接数据库
+const db = mysql.createPool({
+  //数据库ip
+  host:'127.0.0.1',
+  //数据库ip端口 默认是3306以不写
+  post:3306,
+  //用户名
+  user:'root',
+  //用户密码
+  password:"admin123",
+  //数据库名称
+  database:'demo-db'
+})
+
+// 操作数据库  第一个参数传入的是sql语句  err是错误信息 result是成功的参数
+db.query('select 1',(err,result)=>{
+  //若链接数据库发生错误 则返回报错信息
+  if(err) return console.log(err.message);
+  // 打印sql执行成功的结果
+  console.log(result);
+})
+
+// 查询user表中所有数据
+const sqlStr = 'select * from user';
+db.query(sqlStr,(err,results)=>{
+  if(err) return console.log(err.message);
+  // 使用select语句返回的是一个数组
+  console.log(results);
+})
+
+
+// 插入数据
+const arr = {username:'spider-man',password:'pc123'};
+const sqlStr = 'insert into user (username,password)  values(?,?)';
+db.query(sqlStr,[arr.username,arr.password],(err,results)=>{
+  if(err) return console.log(err.message);
+
+  // 使用insert插入语句 会返回一个对象 对象里面的affectedRows是用来判断插入是否成功
+  if(results.affectedRows == 1){
+    console.log('插入成功');
+  }
+})
+
+
+// 便捷快速的插入数据  若使用该方法 需要将表中的属性与数组的属性全部都一一对应 
+const arr = {username:'spider-man2',password:'pc1234'};
+const sqlStr = 'insert into user SET ?';
+db.query(sqlStr,arr,(err,results)=>{
+  if(err) return console.log(err.message);
+
+  if(results.affectedRows == 1){
+    console.log('插入成功');
+  }
+})
+
+
+// 更新用户数据
+const arr = {id:"6",username:'bbb',password:'000'};
+const sqlStr = 'update user set username=?, password=? where id=?';
+db.query(sqlStr,[arr.username,arr.password,arr.id],(err,results)=>{
+  if(err) return console.log(err.message);
+
+  if(results.affectedRows == 1){
+    console.log('更新成功');
+  }
+})
+
+
+// 更新用户的快捷写法
+const arr = {id:"6",username:'ccc',password:'000'};
+const sqlStr = 'update user set ? where id=?';
+db.query(sqlStr,[arr,arr.id],(err,results)=>{
+  if(err) return console.log(err.message);
+
+  if(results.affectedRows == 1){
+    console.log('更新成功');
+  }
+})
+
+ 
+// 删除id=5的用户  物理删除 真正的从数据库中删除 数据不可以在恢复
+const sqlStr = 'delete from user where id=?';
+
+// 传递一个参数 可以省略数组 
+db.query(sqlStr,7,(err,res)=>{
+  if(err) return console.log(err.message);
+
+  if(res.affectedRows == 1){
+    console.log('删除成功');
+  }
+})
+
+
+// 标记删除  设置status为1  标记为删除 若想恢复数据设置为0即可
+const sqlStr = 'update user set status=? where id=?';
+db.query(sqlStr,[1,6],(err,res)=>{
+  if(err) return console.log(err.message);
+
+  if(res.affectedRows == 1){
+    console.log('删除成功');
+  }
+})
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
