@@ -626,6 +626,7 @@ str.split("");				//将字符串转换成数组[a,b,c,d,e,f]   原字符串不�
 |                   arr.concat(...value)                    |          合并多个数组          |       否       |    合并完成的新数组    |
 |                       arr.reverse()                       |            翻转数组            |       是       |      颠倒后的数组      |
 |                   arr.sort((a,b)=>a-b)                    |   数组排序(a-b升序  b-a降序)   |       是       |      排序后的数组      |
+|                     arr.flat([depth])                     |           扁平化数组           |       否       |     扁平后的新数组     |
 
 
 
