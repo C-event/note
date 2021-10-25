@@ -789,25 +789,231 @@ db.query(sqlStr,[1,6],(err,res)=>{
 
 
 
+## 三、web开发模式
+
+### 3.1、基于服务器渲染的传统开发模式
+
+​	**服务端渲染的概念：**服务器发送给客户端的 HTML 页面，是在服务器通过字符串的拼接，动态生成的。因此，客户端不 需要使用 Ajax 这样的技术额外请求								  	页面的数据
+
+​	**优点:**   ① 前端耗时少。因为服务器端负责动态生成 HTML 内容，浏览器只需要直接渲染页面即可。尤其是移动端，更省电。 
+
+​				② 有利于SEO。因为服务器端响应的是完整的 HTML 页面内容，所以爬虫更容易爬取获得信息，更有利于 SEO。 
+
+​	**缺点:**   ① 占用服务器端资源。即服务器端完成 HTML 页面内容的拼接，如果请求较多，会对服务器造成一定的访问压力。 
+
+​				② 不利于前后端分离，开发效率低。使用服务器端渲染，则无法进行分工合作，尤其对于前端复杂度高的项目，不利于 项目高效开发。
 
 
 
+### 3.2、前后端分离的新型开发模式
+
+​	**前后端分离的概念：**前后端分离的开发模式，依赖于 Ajax 技术的广泛应用。简而言之，前后端分离的 Web 开发模式， 就是后端只负责提供 API 接口，前端使									  用 Ajax 调用接口的开发模式。
+
+​	**优点：** ① 开发体验好。前端专注于 UI 页面的开发，后端专注于api 的开发，且前端有更多的选择性。 
+
+​				② 用户体验好。Ajax 技术的广泛应用，极大的提高了用户的体验，可以轻松实现页面的局部刷新。 
+
+​				③ 减轻了服务器端的渲染压力。因为页面最终是在每个用户的浏览器中生成的。 
+
+​	**缺点：** ① 不利于 SEO。因为完整的 HTML 页面需要在客户端动态拼接完成，所以爬虫对无法爬取页面的有效信息。（解决方 案：利用 Vue、React 等前端框架				的 SSR （server side render）技术能够很好的解决 SEO 问题！）
 
 
 
+### 3.3、session认证
+
+​					原理：当客户端向服务器提供账号和密码时 服务器先对内容进行认证 若正确则会将用户信息存储在内存中 并且生成一个cookie字符串 返回给浏览器 								浏览器会自动保存到当前域名的cookie下 当下次请求时会将cookie中未过期的值传递给服务器 根据传递来的内容返回给相应的信息
 
 
 
+​				![image-20211023211051273](D:\github\笔记相关\session认证工作原理.png)
 
 
 
+**cookie：**Cookie 是存储在用户浏览器中的一段不超过 4 KB 的字符串。它由一个名称（Name）、一个值（Value）和其它几个用 于控制 Cookie 有效期、安				全性、使用范围的可选属性组成。 不同域名下的 Cookie 各自独立，每当客户端发起请求时，会自动把当前域名下所有未过期的 Cookie 一同发送到服务				器。
+
+**特点：**① 自动发送 ② 域名独立 ③ 过期时限 ④ 4KB 限制
+
+**缺点：**cookie不具备安全性 	由于 Cookie 是存储在浏览器中的，而且浏览器也提供了读写 Cookie 的 API，因此 Cookie 很容易被伪造，不具有安全 性。因此不			建议服务器将重要的隐私数据，通过 Cookie 的形式发送给浏览器。
+
+ 
+
+**session中cookie使用**
+
+```
+# 安装相关模块
+npm i express-session
+```
+
+```js
+// 导入 express 模块
+const express = require('express')
+// 创建 express 的服务器实例
+const app = express()
+
+// TODO_01：请配置 Session 中间件
+const session = require('express-session');
+app.use(session({
+  secret:'qazwsxedcrfv',
+  resave:false,
+  saveUninitialized:true
+}))
+
+// 托管静态页面
+app.use(express.static('./pages'))
+// 解析 POST 提交过来的表单数据
+app.use(express.urlencoded({ extended: false }))
+
+// 登录的 API 接口
+app.post('/api/login', (req, res) => {
+  // 判断用户提交的登录信息是否正确
+  if (req.body.username !== 'admin' || req.body.password !== '000000') {
+    return res.send({ status: 1, msg: '登录失败' })
+  }
+
+  // TODO_02：请将登录成功后的用户信息，保存到 Session 中
+  // 只有配置成功了express.session就可以使用该属性
+  req.session.user = req.body;
+  req.session.islogin = true;
+
+  res.send({ status: 0, msg: '登录成功' })
+})
+
+// 获取用户姓名的接口
+app.get('/api/username', (req, res) => {
+  // TODO_03：请从 Session 中获取用户的名称，响应给客户端
+  if(!req.session.islogin){
+    return res.send({code:1,msg:'获取失败'});
+  }
+  res.send({
+    code:0,
+    msg:'获取成功',
+    username:req.session.user.username
+  })
+})
+
+// 退出登录的接口
+app.post('/api/logout', (req, res) => {
+  // TODO_04：清空 Session 信息
+  // 删除cookie  原理是设置cookie时间过期  而不是删除cookie里面的值
+  req.session.destroy();
+  res.send({
+    code:0,
+    msg:'退出成功'
+  })
+})
+
+// 调用 app.listen 方法，指定端口号并启动web服务器
+app.listen(80, function () {
+  console.log('Express server running at http://127.0.0.1:80')
+})
+```
+
+**注：Session 认证机制需要配合 Cookie 才能实现。由于 Cookie 默认不支持跨域访问，所以，当涉及到前端跨域请求后端接 口的时候，需要做很多额外的配置，		才能实现跨域 Session 认证。**
 
 
 
+### 3.4、JWT认证
+
+​			 JWT（英文全称：JSON Web Token）是目前最流行的跨域认证解决方案。JWT 通常由三部分组成，分别是 Header（头部）、Payload（有效荷载）、Signature（签名）。
+
+​			**其中Payload 部分才是真正的用户信息，它是用户信息经过加密之后生成的字符串。Header 和 Signature 是安全性相关的部分，只是为了保证 Token 的安全性。**
 
 
 
+![image-20211023213232710](D:\github\笔记相关\jwt工作原理.png)
 
 
 
+**JWT使用**
+
+```
+# 安装相关模块 jsonwebtoken是用来生成JWT对象的  express-jwt是将JWT对象转换成JSON字符串
+npm i jsonwebtoken express-jwt
+```
+
+```js
+// 导入 express 模块
+const express = require('express')
+// 创建 express 的服务器实例
+const app = express()
+
+// TODO_01：安装并导入 JWT 相关的两个包，分别是 jsonwebtoken 和 express-jwt
+const jwt = require('jsonwebtoken');
+
+const expressJWT = require('express-jwt');
+ 
+// 允许跨域资源共享
+const cors = require('cors')
+app.use(cors())
+
+// 解析 post 表单数据的中间件
+// const bodyParser = require('body-parser')
+app.use(express.urlencoded({ extended: false }))
+
+// TODO_02：定义 secret 密钥，建议将密钥命名为 secretKey
+ const secretKey = 'eventc :)'
+
+// TODO_04：注册将 JWT 字符串解析还原成 JSON 对象的中间件
+// 注意：只要配置成功了 express-jwt 这个中间件，就可以把解析出来的用户信息，挂载到 req.user 属性上
+app.use(expressJWT({secret:secretKey}).unless({path:[/^\/api\//]}))
+ 
+// 登录接口
+app.post('/api/login', function (req, res) {
+  // 将 req.body 请求体中的数据，转存为 userinfo 常量
+  const userinfo = req.body
+  // 登录失败
+  if (userinfo.username !== 'admin' || userinfo.password !== '000000') {
+    return res.send({
+      status: 400,
+      message: '登录失败！',
+    })
+  }
+  // 登录成功
+  // TODO_03：在登录成功之后，调用 jwt.sign() 方法生成 JWT 字符串。并通过 token 属性发送给客户端
+  // 参数1：用户的信息对象
+  // 参数2：加密的秘钥
+  // 参数3：配置对象，可以配置当前 token 的有效期
+  // 记住：千万不要把密码加密到 token 字符中
+  const token = jwt.sign({username:userinfo.username},secretKey,{expiresIn:'30s'});
+
+  res.send({
+    status: 200,
+    message: '登录成功！',
+    token:token
+  })
+  
+})
+
+// 这是一个有权限的 API 接口
+app.get('/admin/getinfo', function (req, res) {
+  // TODO_05：使用 req.user 获取用户信息，并使用 data 属性将用户信息发送给客户端
+  console.log(req.user)
+  res.send({
+    status: 200,
+    message: '获取用户信息成功！',
+    data: req.user, // 要发送给客户端的用户信息
+  })
+})
+
+// TODO_06：使用全局错误处理中间件，捕获解析 JWT 失败后产生的错误
+app.use((err, req, res, next) => {
+  // 这次错误是由 token 解析失败导致的
+  if (err.name === 'UnauthorizedError') {
+    return res.send({
+      status: 401,
+      message: '无效的token',
+    })
+  }
+  res.send({
+    status: 500,
+    message: '未知的错误',
+  })
+})
+
+// 调用 app.listen 方法，指定端口号并启动web服务器
+app.listen(8888, function () {
+  console.log('Express server running at http://127.0.0.1:8888')
+})
+
+```
 
