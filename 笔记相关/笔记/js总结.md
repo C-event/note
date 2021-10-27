@@ -1017,9 +1017,11 @@ window.pageY;				//返回的是鼠标(手指)在页面y轴上的距离
 
 ![](C:\Users\12286\Desktop\我的文件\笔记相关\js执行机制.png)
 
-##### 2.3、事件循环(event loop)
+##### 2.3、事件循环(EventLoop)
 
 ​			主线程执行完毕，查询任务队列，取出一个任务，推入主线程处理。重复这个行为就是事件循环
+
+![image-20211027193856664](D:\github\笔记相关\EventLoop图解.png)
 
 
 
@@ -2038,6 +2040,190 @@ sum(1,2,3,4,5,6);
 
 
 
+### 10.6、Promise
+
+​				  为了解决回调地狱的问题    在ES6中引入了promise的概念
+
+**基本介绍：**
+
+① Promise 是一个构造函数 
+
+ 	我们可以创建 Promise 的实例 const p = new Promise()  new 出来的 Promise 实例对象，代表一个异步操作 
+
+② Promise.prototype 上包含一个 .then() 方法 
+
+ 	每一次 new Promise() 构造函数得到的实例对象， 
+
+​	 都可以通过原型链的方式访问到 .then() 方法，例如 p.then() 
+
+③ .then() 方法用来预先指定成功和失败的回调函数 
+
+ 	p.then(成功的回调函数，失败的回调函数) 
+
+ 	p.then(result => { }, error => { }) 
+
+ 	调用 .then() 方法时，成功的回调函数是必选的、失败的回调函数是可选的
+
+**注：**回调地狱就是回调函数里面嵌套回调函数 一旦某个模块出现问题 整个程序都会崩溃 **可读性和可复用性都很差**
+
+
+
+**基于then-fs实现异步读取文件**
+
+```js
+//es6中新增的导入第三方模块的方法
+import thenFs from "then-fs";
+
+// 每次promise成功回调函数都会返回一个promise对象 每个promise对象都可调用.then方法  实现按照顺序读取文件
+thenFs.readFile('./files/11.txt','utf8')			//文件中没有改文件 会报错 通过catch捕获 否则后面不执行 代码崩溃
+// 若写在前面 则不影响后面的代码
+.catch(err=>{
+  console.log(err.message);
+})
+.then((r1)=>{
+  console.log(r1);
+  return thenFs.readFile('./files/2.txt','utf8')
+})
+.catch(err=>{
+  console.log(err.message);
+})
+.then((r2)=>{
+  console.log(r2);
+  return thenFs.readFile('./files/3.txt','utf8')
+})
+.catch(err=>{
+  console.log(err.message);
+})
+.then((r3)=>{
+  console.log(r3);
+})
+// catch是用来捕获promise中出现的错误 若将catch写在最后 这程序报错后立即执行catch语句 后续程序不在执行
+// .catch(err=>{
+//   console.log(err.message);
+// })
+```
+
+
+
+**Promise.all和Promise.race**
+
+```js
+import thenFs from "then-fs";
+
+//定义一个数组 存入3个读取文件的数据
+const PromiseArr = [
+  thenFs.readFile('./files/1.txt','utf8'),
+  thenFs.readFile('./files/2.txt','utf8'),
+  thenFs.readFile('./files/3.txt','utf8')
+]
+
+// 等待异步程序全部执行完成后 在去调用.then方法 并返回一个数组 返回的读取文件结果的顺序就是你读取的顺序
+Promise.all(PromiseArr).then(res=>{
+  console.log(res);
+})
+
+// 赛跑机制 三个异步处理程序 谁先执行完 就停止程序 并输出该值
+Promise.race(PromiseArr).then(res=>{
+  console.log(res);
+})
+```
+
+
+
+**基于 Promise 封装读文件的方法**
+
+```js
+import fs from 'fs';
+
+
+function getfile(fpath){
+  // 返回一个Promise对象 
+  return new Promise((resolve,reject)=>{
+    fs.readFile(fpath,'utf-8',(err,dateStr)=>{
+      if(err) return reject(err);
+      resolve(dateStr);
+    })
+  })
+}
+
+//then里面的成功和失败的回调函数分别指向Promise构造函数里面的resolve和reject
+getfile('./files/1.txt').then(r1=>{console.log(r1);},err=>{console.log(err)})
+```
+
+
+
+**async和await**
+
+```js
+import thenFs from "then-fs";
+
+// await是 获取Promise实例对象.then方法中成功时的结果 之后就不在是Promise对象 要与async配合使用 若出现错误要是用try-catch来捕获错误
+async function getfile(){
+  // 通过try-catch不会影响之后的代码 不会造成程序崩溃
+  try {
+    const r1 = await thenFs.readFile('./files/11.txt','utf8')
+    console.log(r1);
+  } catch (error) {
+    //抛出错误
+    console.log(error);
+  }
+  const r2 = await thenFs.readFile('./files/2.txt','utf8')
+  console.log(r2);
+  const r3 = await thenFs.readFile('./files/3.txt','utf8')
+  console.log(r3);
+}
+
+getfile();
+```
+
+**注：在await之前的都属于同步任务  await之后的都属于异步任务**
+
+
+
+### 10.7、宏任务与微任务
+
+​		**同步任务：**又叫做非耗时任务，指的是在主线程上排队执行的那些任务 
+
+​				   		只有前一个任务执行完毕，才能执行后一个任务
+
+​		**异步任务：**又叫做耗时任务，异步任务由 JavaScript 委托给宿主环境进行执行 
+
+​						   当异步任务执行完成后，会通知 JavaScript 主线程执行异步任务的回调函数 **例如：定时器 ajax 回调函数等**
+
+**宏任务与微任务**
+
+​		 其中JavaScript又将异步程序进行了进一步的划分
+
+​							**宏任务：** 异步 Ajax 请求、 
+
+​											setTimeout、setInterval、 
+
+​											文件操作 
+
+​											其它宏任务
+
+​							**微任务：** Promise.then、.catch 和 .finally 
+
+​											process.nextTick 
+
+​											其它微任务
+
+执行顺序：同步 > 异步 > 微任务 > 宏任务 > 宏任务下的微任务 > 下一个宏任务 > ............
+
+![image-20211027195414742](D:\github\笔记相关\宏任务与微任务执行过程.png)
+
+
+
+**经典面试题：**
+
+![image-20211027195702565](C:\Users\12286\AppData\Roaming\Typora\typora-user-images\image-20211027195702565.png)
+
+**注：**new Promise属于同步任务
+
+答案：156234789
+
+
+
 # Ajax
 
 ## 一、客户端与服务器
@@ -2922,3 +3108,8 @@ $(function() {
 **总结**：**防抖**：如果事件被频繁触发，防抖能保证只有最有一次触发生效！前面 N 多次的触发都会被忽略！
 
 ​			**节流**：如果事件被频繁触发，节流能够减少事件触发的频率，因此，节流是有选择性地执行一部分事件！
+
+
+
+
+
