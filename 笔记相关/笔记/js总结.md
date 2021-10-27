@@ -321,6 +321,9 @@ for(var i = 0;i < arr.length;i++){
 var newarr = arr.filter(functiton(value,index,array){
 	return arrat.indexOf(value) == index;                        
 })
+
+//es6新增 set  set是es6新增对象   允许你存储任何类型的唯一值，无论是原始值或者是对象引用。
+let newarr = [...new Set(arr)]
 ```
 
 
@@ -636,10 +639,11 @@ str.split("");				//将字符串转换成数组[a,b,c,d,e,f]   原字符串不�
 
 |                    用法                    |     作用     |    执行次数    |         返回值         |
 | :----------------------------------------: | :----------: | :------------: | :--------------------: |
-| arr.forEach(function(value,index,array){}) |   遍历数组   |   数组的长度   |    遍历处理后的数组    |
+| arr.forEach(function(value,index,array){}) |   遍历数组   |   数组的长度   |       undefined        |
 | arr.filter(function(value,index,array)}{}) |   筛选数组   |   数组的长度   | 满足条件元素组成的数组 |
 |  arr.some(function(value,index,array){})   | 判断数组元素 | 满足条件就停止 | 布尔值(true \| false)  |
 |  arr.every(function(value,index,array){})  | 判断数组元素 |    数组长度    | 布尔值(true \| false)  |
+|   arr.map(function(value,index,array){})   |   遍历数组   |   数组的长度   |      处理后的数组      |
 
 
 
