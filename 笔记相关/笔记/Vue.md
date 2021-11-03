@@ -242,3 +242,484 @@ module.exports = {
 
 
 
+## 二、Vue基础
+
+### 2.1、概念
+
+​				Vue是渐进式javacript框架, 一套拥有自己规则的语法
+
+
+
+**Vue使用方法：** **传统开发模式**：基于html文件开发Vue 
+
+​						   **工程化开发方式**：在webpack环境中开发Vue，这是最推荐, 企业常用的方式
+
+
+
+**Vue文件内容：**template  --- 放的是html代码
+
+​						   script --- 放的是js代码
+
+​						   style --- 放的是css文件
+
+
+
+### 2.2、MVVM设计模型
+
+​			设计模式: 是一套被反复使用的、多数人知晓的、经过分类编目的、代码设计经验的总结。
+
+​			演示: 在上个代码基础上, 在devtool工具改变M层的变量, 观察V层(视图的自动同步)
+
++ MVVM，一种软件架构模式，决定了写代码的思想和层次
+  + M：   model数据模型          (data里定义)	
+  + V：    view视图                   （html页面）
+  + VM： ViewModel视图模型  (vue.js源码)
+
+- MVVM通过`数据双向绑定`让数据自动地双向同步  **不再需要操作DOM**
+  - V（修改视图） -> M（数据自动同步）
+  - M（修改数据） -> V（视图自动同步）
+
+![MVVM](D:\github\笔记相关\MVVM.png)
+
+**1. 在vue中，不推荐直接手动操作DOM！！！**  
+
+**2. 在vue中，通过数据驱动视图，不要在想着怎么操作DOM，而是想着如何操作数据！！**(思想转变)
+
+![双向数据绑定](D:\github\笔记相关\双向数据绑定.png)
+
+
+
+### 2.3、Vue-cli	
+
+​				Vue-cli又称Vue脚手架 它是第三方模块包 里面帮我们封装配置好了相关webpack 可以实现开箱即用 帮我们省去了繁琐的webpack配置
+
+```bash
+# 安装
+yarn global add @vue/cli
+
+# 检查是否安装成功
+vue -V
+
+# 使用	vue create 文件名  文件名不可以带有中文、空白、下划线等 文件名不可以是vue
+vue create vueDemo
+
+# 进入改文件下
+cd vueDemo		
+
+# 启动服务
+yarn serve
+```
+
+```js
+//在vue.config.js中设置端口号和自动打开
+module.exports = {
+  devServer: { // 自定义服务配置
+    open: true, // 自动打开浏览器
+    port: 3000	//端口号
+  },
+  lintOnSave:false  //关闭默认的代码差错功能 eslint
+}
+```
+
+使用Vue-cli搭建的项目文件目录如下：
+
+![image-20211103200324640](D:\github\笔记相关\Vue-cli项目文件目录.png)
+
+**注：src/main.js是为webpack的打包的入口**
+
+​		**src/App.vue是vue文件的跟组件**
+
+​		**public/index.html是浏览器显示的页面**
+
+
+
+### 2.4、语法
+
+#### 2.4.1、插值表达式
+
+```vue
+<template>
+	<!-- 在vue的template中必须含有一个跟标签 -->
+	<div>
+        <div>{{ msg }}</div>
+		<div>{{ obj.name }}</div>
+		<div>{{ age >= 18? '成年':'未成年'}}</div>
+    </div>
+</template>
+
+<script>
+export default {
+	data(){
+        return {
+            msg:'hello,world',
+            obj:{
+                name:'张三'
+            }，
+            age:18
+        }
+    }
+}
+</script>
+```
+
+
+
+#### 2.4.2、v-bind -- 动态属性
+
+```vue
+<template>
+  <div>
+    <!-- 语法 v-bind:原生属性名='vue变量' -->
+    <a v-bind:href="url">去百度</a>
+    <!-- 简便语法 :原生属性名='vue变量' -->
+    <img :src="img">
+    <img :src="localImg" alt="">
+  </div>
+</template>
+
+<script>
+import locImg from './assets/1.gif'
+export default {
+    data(){
+      return {
+        url:'http://www.baidu.com',
+        img:'https://fanyi-cdn.cdn.bcebos.com/static/translation/widget/footer/Products/img/product-desktop@2x_c85778a.png',
+        localImg:locImg
+      }
+    }
+}
+</script>
+```
+
+
+
+#### 2.4.3、v-on -- 事件绑定    事件对象e  v-on -- 修饰符
+
+```vue
+<template>
+  <div>
+    <p>您要购买{{ count }}个苹果</p>
+    <!-- 语法 ： v-on:事件名='methods里面的函数 | 要执行的简单代码' -->
+    <button v-on:click="count = count + 1">+1</button>
+    <button v-on:click="addFn">+1</button>
+    <button v-on:click="add(5)">+5</button>
+    <!-- 简单语法：@事件名='methods里面的函数 | 要执行的简单代码' -->
+    <button v-on:click="del">-1</button>
+  </div>
+</template>
+
+<script>
+export default {
+  //所有的vue变量都在data里面声明
+  data(){
+    return {
+      count : 0
+    }
+  },
+  //方法在methods里面声明
+  methods:{
+    addFn(){
+      //this指向的是export default后面的{}对象 data中的数据定义完成后 会自动绑定到该对象后 所以可以使用this.访问data中的数据
+      this.count++;
+    },
+    add(num){
+      this.count = this.count + num
+    },
+    del(){
+      this.count--
+    }
+  }
+}
+</script>
+```
+
+```vue
+<template>
+  <div>
+    <a @click="one" href="http://www.baidu.com">百度</a>
+    <hr>
+    <a @click="sum(10,$event)" href="http://www.baidu.com">百度</a>
+  </div>
+</template>
+
+<script>
+export default {
+  methods:{
+    //若函数没有传递参数 则可以直接使用e才获取事件对象
+    one(e){
+      e.preventDefault();
+    },
+    //若函数传递的参数 则需要使用$event来获取事件对象 $event与e一一对应
+    sum(num,e){
+      e.preventDefault();
+    }
+  }
+}
+</script>
+```
+
+```vue
+<template>
+  <div>
+    <!-- .stop 阻止冒泡
+         .prevent 阻止默认行为
+         .once click函数只执行一次
+     -->
+    <div @click="father">
+      <p @click.stop="one">one</p>
+      <a @click.prevent.stop href="http://www.baidu.com">百度</a>
+      <p @click.once="two">two</p>
+        
+      <input type="text" @keydown.enter="enter">
+  	  <br>
+  	  <input type="text" @keydown.esc="esc">
+  </div>
+</template>
+
+<script>
+export default {
+  methods:{
+    father(){
+      console.log('father');
+    },
+    one(){
+      console.log('one');
+    },
+    two(){
+      console.log('two');
+    },
+    enter(){
+      console.log('enter');
+    },
+    esc(){
+      console.log('esc');
+    }
+  }
+}
+</script>
+```
+
+注：更多修饰符查看https://cn.vuejs.org/v2/guide/events.html#%E6%8C%89%E9%94%AE%E4%BF%AE%E9%A5%B0%E7%AC%A6
+
+
+
+#### 2.4.4、v-model -- 双向绑定(表单）
+
+**基本用法：**
+
+```js
+<template>
+  <div>
+    <!-- 
+      v-model实现了双向绑定 
+      input的value -- vue变量
+      目前只能用于表单元素中
+     -->
+    <span>用户名:</span>
+    <input type="text" v-model="username">
+    <br>
+    <span>密码:</span>
+    <input type="password" v-model="pass">
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      username:'',
+      pass:''
+    }
+  }
+}
+</script>
+```
+
+**表单元素：**
+
+```vue
+<template>
+  <div>
+    <div>
+      <!-- 下拉框的v-model需要绑定到select上 -->
+      <span>请选择:</span>
+      <select v-model="address">
+        <option value="北京">北京</option>
+        <option value="南京">南京</option>
+        <option value="上海">上海</option>
+      </select>
+    </div>
+    <div>
+      <!-- 
+        复选框需要给每个表单都添加v-model属性
+        若绑定的vue变量是非数组 -- 绑定的是复选框的checked值
+        若绑定的vue变量是数组 -- 绑定的是复选框的value
+       -->
+      <span>爱好:</span>
+      <input type="checkbox" v-model="hobby" value="抽烟">抽烟
+      <input type="checkbox" v-model="hobby" value="喝酒">喝酒
+      <input type="checkbox" v-model="hobby" value="烫头">烫头
+    </div>
+    <div>
+      <!-- 单选框 也是需要给每个表单元素绑定v-model -->
+      <span>性别:</span>
+      <input type="radio" name="sex" value="男" v-model="sex">男
+      <input type="radio" name="sex" value="女" v-model="sex">女
+    </div>
+    <div>
+      <!-- 文本框要给表单元素绑定v-model -->
+      <span>请输入:</span>
+      <textarea v-model="intor"></textarea>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      address:'',
+      hobby:[],
+      sex:'',
+      intor:''
+    }
+  }
+}
+</script>
+```
+
+
+
+#### 2.4.5、v-text与v-html -- 修改元素内容
+
+```vue
+<template>
+  <div>
+    <!--
+      v-text 不能识别html标签
+      v-html 可以识别html标签
+      它们会覆盖差值表达式的内容
+      -->
+    <p v-text="str"></p>
+    <p v-html="str">{{ 10 + 20 }}</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      str:'<span>这是一个span</span>'
+    }
+  }
+}
+</script>
+```
+
+
+
+#### 2.4.6、v-for -- 循环元素
+
+​				**口诀：谁要循环写谁身上**
+
+```vue
+<template>
+  <div>
+    <!-- 
+      谁要循环写谁身上
+     -->
+    <ul>
+      <li v-for="(item,index) in arr" :key="index">
+        {{ index }} - {{ item }}
+      </li>
+    </ul>
+    
+    <div>
+      <p v-for="obj in stuArr" :key="obj.id">
+        <span>{{ obj.id }}</span>-
+        <span>{{ obj.name }}</span>-
+        <span>{{ obj.sex }}</span>-
+        <span>{{ obj.hobby }}</span>
+      </p>
+    </div>
+
+    <div>
+      <p v-for="(value,key) in tObj" :key="key">
+        {{ key }} : {{ value }}
+      </p>
+    </div>
+
+    <!-- 遍历的元素是数字时 则会从1开始依次输出 -->
+    <div>
+      <span v-for="i in count" :key="i">{{ i }}</span>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      arr: ["小明", "小欢欢", "大黄"],
+      stuArr: [
+        {
+          id: 1001,
+          name: "孙悟空",
+          sex: "男",
+          hobby: "吃桃子",
+        },
+        {
+          id: 1002,
+          name: "猪八戒",
+          sex: "男",
+          hobby: "背媳妇",
+        },
+      ],
+      tObj: {
+        name: "小黑",
+        age: 18,
+        class: "1期",
+      },
+      count: 10,
+    };
+  },
+}
+</script>
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
