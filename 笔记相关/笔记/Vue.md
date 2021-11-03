@@ -588,6 +588,42 @@ export default {
 </script>
 ```
 
+**修饰符：**
+
+```vue
+<template>
+  <div>
+    <div>
+      <span>年龄:</span>
+      <!-- 将内容转换成数字再给vue变量 -->
+      <input type="text" v-model.number="age">
+    </div>
+    <div>
+      <span>人生格言:</span>
+      <!-- 突出头尾两处的空格 中间空格不去除 -->
+      <input type="text" v-model.trim="motto">
+    </div>
+    <div>
+      <span>自我介绍:</span>
+      <!-- 当元素失去焦点并且内容改变才将内容给vue变量 -->
+      <textarea v-model.lazy="intro"></textarea>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      age: "",
+      motto: "",
+      intro: ""
+    }
+  }
+}
+</script>
+```
+
 
 
 #### 2.4.5、v-text与v-html -- 修改元素内容
