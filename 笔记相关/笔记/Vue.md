@@ -725,6 +725,59 @@ export default {
 
 
 
+**v-for实现页面元素变化的本质是 数组元素变化的改变**
+
+```vue
+<template>
+  <div>
+    <ul>
+      <li v-for="(item,index) in arr" :key="index">{{ item }}</li>
+    </ul>
+    <!-- 更改dom的原理是导致原数组改变 -->
+    <button @click="resBtn">翻转</button>
+    <button @click="sliceBtn">截取前三个</button>
+    <button @click="updateBtn">更改第一个值</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      arr : [1,2,3,4,5,6,7,8]
+    }
+  },
+  methods:{
+    resBtn(){
+      //修改原数组 dom会改变
+      this.arr.reverse();
+    },
+    sliceBtn(){
+      //不会修改原数组 dom不会改变
+      // this.arr.slice(0,3)
+
+      //解决方法
+      this.arr = this.arr.slice(0,3)
+    },
+    updateBtn(){
+      //修改数组内容的值 不会更新dom
+      // this.arr[0] = 1000
+
+      //解决方法
+      //.$set(需要更新的数组，更新的索引，更新值)
+      this.$set(this.arr,0,1000)
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>
+```
+
+
+
 #### 2.4.7、动态class和动态style
 
 ```vue
@@ -915,8 +968,6 @@ export default {
 
 
 ### 2.5、v-for更新检测原理
-
-​				**v-for实现页面元素变化的本质是 数组元素变化的改变**
 
 ​				v-for的前端更新效率是非常高的 原因是它是拿**新的虚拟DOM**与**旧的虚拟DOM**采用**diff算法**进行对比 **未修改的元素继续复用 修改的元素再去更新**
 
