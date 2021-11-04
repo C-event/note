@@ -725,29 +725,294 @@ export default {
 
 
 
+#### 2.4.7、动态class和动态style
+
+```vue
+//动态设置class
+<template>
+  <div>
+    <!-- 语法 :class{类名 : 布尔值} -->
+    <p :class="{red:bool}">动态设置类名</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      bool:true
+    }
+  }
+}
+</script>
+
+<style scoped>
+  .red{
+    color:red
+  }
+</style>
+
+
+//动态设置style
+<template>
+  <div>
+    <!-- 语法 :style = {属性名 : 属性值} -->
+    <p :style="{backgroundColor:"red"}">动态设置类名</p>
+    <p :style="{backgroundColor:color}">动态设置类名</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+     	color:'red'
+    }
+  }
+}
+</script>
+
+<style scoped>
+</style>
+```
 
 
 
+#### 2.4.8、过滤器
+
+​               转换格式, 过滤器就是一个**函数**, 传入值返回处理后的值
+
+```js
+//在mian.js中定义全局过滤器
+// 全局过滤器 必须要在new Vue前面 可在全局文件中使用
+Vue.filter('reverse',(val,s)=>{
+  return val.split("").reverse().join(s)
+})
+```
+
+```vue
+<template>
+  <div>
+    <!-- 
+      使用语法：处理的数据 | 过滤函数
+     -->
+    <p>使用前：{{ msg }}</p>
+     <!-- 
+     全局过滤器的使用
+     -->
+    <p>使用后：{{ msg | reverse('|')}}</p>
+    <p :title="msg | toUp">鼠标停留</p>
+    <!-- 
+      多个过滤器的使用 
+      处理的数据 | 过滤器 | 过滤器 
+     -->
+    <p :title="msg | toUp | reverse('|')">鼠标停留(多个过滤器使用)</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      msg:'hello,world'
+    }
+  },
+  //局部过滤器 只能在当前vue文件使用
+  filters:{
+    toUp(val){
+      return val.toUpperCase()
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>
+```
 
 
 
+#### 2.4.9、计算属性
+
+​                计算属性使用场景是 某个值是由多个值共同影响而产生的
+
+```vue
+//计算属性的简单用法
+<template>
+  <div>
+    <input type="text" v-model.number="a">
+    <br>
+    <input type="text" v-model.number="b">
+    <p>{{ num }}</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      a:'',
+      b:''
+    }
+  },
+  computed:{
+    //注意计算属性的名字不能与data里面的变量名相同
+    num(){
+      return this.a + this.b
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>
+
+
+//计算属性的完整用法
+<template>
+  <div>
+    <p>姓名</p>
+     <!-- 将表单的值与计算属性full绑定 -->
+    <input type="text" v-model="full">
+  </div>
+</template>
+
+<script>
+export default {
+  computed:{
+    // 计算属性的完整写法
+    // 计算属性名：{
+    //   set(val){
+            
+    //   },
+    //   get(){
+            // return '值'
+    //   }
+    // }
+    full:{
+        //用来接收表单传过来的值
+      set(val){
+        console.log(val);
+      },
+        //用来修改表单的值
+      get(){
+        return "无名氏"
+      }
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>
+```
+
+**注：计算属性具有缓存属性 若内容没有改变 但多次进行调用了 该计算属性只执行了一次 之后的数据从缓存里面取 优化了前端的性能**
 
 
 
+### 2.5、v-for更新检测原理
+
+​				v-for的前端更新效率是非常高的 原因是它是拿**新的虚拟DOM**与**旧的虚拟DOM**采用**diff算法**进行对比 **未修改的元素继续复用 修改的元素再去更新**
+
+![image-20211104203319518](D:\github\笔记相关\新旧虚拟DOM对比.png)
 
 
 
+#### 2.5.1、虚拟DOM
+
+​				虚拟DOM的本质是**存储在内存中的js对象** 在js对象中只存储有效属性 无用属性并不会去存储
+
+```vue
+// template的标签结构
+<template>
+    <div id="box">
+        <p class="my_p">123</p>
+    </div>
+</template>
+```
+
+```js
+//内存中的js对象
+const dom = {
+    type: 'div',
+    attributes: [{id: 'box'}],
+    children: {
+        type: 'p',
+        attributes: [{class: 'my_p'}],
+        text: '123'
+    }
+}
+```
+
+以后vue数据更新
+
+* 生成新的虚拟DOM结构
+* 和旧的虚拟DOM结构对比
+* 利用diff算法, 找不不同, 只更新变化的部分(重绘/回流)到页面 - 也叫打补丁
+
+==好处1: 提高了更新DOM的性能(不用把页面全删除重新渲染)==
+
+==好处2: 虚拟DOM只包含必要的属性(没有真实DOM上百个属性)==
+
+**总结: 虚拟DOM保存在内存中, 只记录dom关键信息, 配合diff算法提高DOM更新的性能**
+
+在内存中比较差异(只会同级比较)  然后给真实DOM打补丁更新上 
 
 
 
+#### 2.5.2、diff算法(v-for中key的作用)
+
+​				vue用diff算法, 新虚拟dom, 和旧的虚拟dom比较
+
+##### 情况一：根元素不同 
+
+​				直接将旧DOM整个删除 重新加载新DOM
 
 
 
+##### 情况二：根元素相同 属性改变
+
+​				其余元素进行复用 只更新属性值
 
 
 
+##### 情况三：根元素相同 子元素改变 无key  以元素进行对比
+
+​				就地更新 相同的元素进行复用 重新赋值 新增   图解如下：  **总共修改了四个元素**
+
+![image-20211104210552597](D:\github\笔记相关\diff算法无key图解.png)
 
 
+
+##### 情况四：根元素相同 子元素改变 有key key值为数组索引  以key值进行对比
+
+​				实现的情况和无key值相同 就地更新 相同的元素进行复用 重新赋值 新增   图解如下：  **总共修改了四个元素**
+
+![image-20211104211018062](D:\github\笔记相关\diff算法key为索引图解.png)
+
+![新_vfor更细_无key_就地更新](D:\github\笔记相关\key为索引和无key-就地更新.gif)
+
+
+
+##### 情况五：根元素相同 子元素改变 有key key值为id  以key值进行对比
+
+​				不会就地更新 因为id的唯一性 之前的相同元素都会进行复用 只会修改新增元素
+
+​				新DOM里数据的key存在, 去旧的虚拟DOM结构里找到key标记的标签, 复用标签
+
+​				新DOM里数据的key存在, 去旧的虚拟DOM结构里没有找到key标签的标签, 创建
+
+​				旧DOM结构的key, 在新的DOM结构里没有了, 则==移除key所在的标签==
+
+图解如下：**总共修改两个元素 ** 效率更高
+
+![image-20211104211735719](D:\github\笔记相关\diff算法key值为id图解.png)
+
+![新_vfor更细_有key值为id_提高性能更新](D:\github\笔记相关\key为id流程.gif)
 
 
 
