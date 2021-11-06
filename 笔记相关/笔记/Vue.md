@@ -785,6 +785,7 @@ export default {
 <template>
   <div>
     <!-- 语法 :class{类名 : 布尔值} -->
+    <!-- 注: bool值可以是判断表达式 返回布尔值-->
     <p :class="{red:bool}">动态设置类名</p>
   </div>
 </template>
@@ -965,6 +966,149 @@ export default {
 
 **注：计算属性具有缓存属性 若内容没有改变 但多次进行调用了 该计算属性只执行了一次 之后的数据从缓存里面取 优化了前端的性能**
 
+```vue
+<template>
+	<!-- 全选反选 -->
+  <div>
+    <span>全选:</span>
+    <input type="checkbox" v-model="isAll"/>
+    <button @click="fnChange">反选</button>
+    <ul>
+      <li v-for="(obj,index) in arr" :key="index">
+        <input type="checkbox" v-model="obj.c"/>
+        <span>{{ obj.name}}</span>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      arr: [
+        {
+          name: "猪八戒",
+          c: false,
+        },
+        {
+          name: "孙悟空",
+          c: false,
+        },
+        {
+          name: "唐僧",
+          c: false,
+        },
+        {
+          name: "白龙马",
+          c: false,
+        },
+      ],
+    };
+  },
+  computed:{
+    // isAll(){
+    //   return this.arr.every(obj => obj.c)
+    // }
+    isAll:{
+      set(val){
+        // 更改数组里面c的值
+        this.arr.forEach(obj => obj.c = val)
+      },
+      get(){
+        return this.arr.every(obj => obj.c)
+      }
+    }
+  },
+  methods:{
+    fnChange(){
+      this.arr.forEach(obj => obj.c = !obj.c)
+    }
+  }
+};
+</script>
+```
+
+
+
+#### 2.4.10、监听器
+
+​		**简单数据监听：**
+
+```vue
+<template>
+  <div>
+    <input type="text" v-model="name">
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      name:'zhangsan'
+    }
+  },
+  // 当输入框里面的内容发生改变时 会触发监听器 所要监听的元素都写在watch中
+  watch:{
+    //所要监听的vue变量
+    name(newVal,oldVal){
+      // newVal是更新后的值 oldVal是更新后的值
+      console.log(newVal,oldVal);
+    }
+  }
+}
+</script>
+
+<style>
+</style>
+```
+
+
+
+​		**复杂数据监听(深度监听)：**
+
+```vue
+<template>
+  <div>
+    <input type="text" v-model="user.name">
+    <input type="text" v-model="user.age">
+  </div>
+</template>
+
+<script>
+export default {
+  data(){
+    return {
+      user:{
+        name:'zs',
+        age:20
+      }
+    }
+  },
+  // 当输入框里面的内容发生改变时 会触发监听器
+  watch:{
+    // 监听复杂数据类型写法 对象、数组等
+    user:{
+      // handler是固定写法
+      handler(newVal,oldVal){
+        console.log(newVal,oldVal == undefined? oldVal : oldVal.name);		//写这个判断的原因是 一开始oldVal是undefined
+      },
+      // 设置监听为深度监听
+      deep:true,
+      // 设置网页一加载就执行一次
+      immediate:true
+    }
+  }
+}
+</script>
+
+<style>
+</style>
+```
+
+
+
 
 
 ### 2.5、v-for更新检测原理
@@ -1066,6 +1210,315 @@ const dom = {
 ![image-20211104211735719](D:\github\笔记相关\diff算法key值为id图解.png)
 
 ![新_vfor更细_有key值为id_提高性能更新](D:\github\笔记相关\key为id流程.gif)
+
+
+
+### 2.6、Vue组件化
+
+​			将Vue分为一个一个小组件 组件内的变量互不影响 防止了变量名的冲突 组件也可以进行复用优化开发
+
+​			**补：vue文件中style标签中scoped的作用是给当前标签添加一个哈希值 实现每个css类对应相应vue文件**
+
+
+
+#### 2.6.1、组件通信 父 -> 子
+
+​				父组件的信息需要传递给子组件
+
+```vue
+// 父组件(App.vue) 基础写法
+<template>
+  <div>
+    <!-- 
+      父组件（app.vue） -> 子组件（MyProuduct.vue）传递变量
+     -->
+     <!-- 使用组件 -->
+    <MyP title="烤鸭" price='20' intro="真好吃 不打折"> </MyP>
+    <MyP title="烤鸡" price='50' intro="不好吃 打8折"></MyP>
+    <MyP title="炸鸡" price='10' intro="真好吃 又便宜 打11折"></MyP>
+  </div>
+</template>
+
+<script>
+//导入组件
+import MyP from './components/MyProuduct.vue'
+export default {
+  //注册组件
+  components:{
+    MyP:MyP
+  }
+}
+</script>
+
+<style>
+</style>
+
+// 父->子 循环写法
+<template>
+  <div>
+    <!-- 
+      v-for循环 遍历循环组件
+     -->
+    <MyP v-for="obj in list" :key="obj.id"
+      :title="obj.proname"
+      :price="obj.proprice"
+      :intro="obj.info"
+    ></MyP>
+  </div>
+</template>
+
+<script>
+import MyP from './components/MyProuduct.vue'
+
+export default {
+  data(){
+    return {
+      list: [
+    { id: 1, proname: "超级好吃的棒棒糖", proprice: 18.8, info: '开业大酬宾, 全场8折' },
+    { id: 2, proname: "超级好吃的大鸡腿", proprice: 34.2, info: '好吃不腻, 快来买啊' },
+    { id: 3, proname: "超级无敌的冰激凌", proprice: 14.2, info: '炎热的夏天, 来个冰激凌了' },
+],
+    }
+  },
+  components:{
+    MyP:MyP
+  }
+}
+</script>
+
+<style>
+
+</style>
+```
+
+```vue
+//子组件
+<template>
+  <div class="my-product">
+    <h3>标题: {{ title }}</h3>
+    <p>价格: {{ price }}元</p>
+    <p>{{ intro }}</p>
+  </div>
+</template>
+
+<script>
+export default {
+  // 定义变量 接收父组件传递来的变量
+  props: ['title', 'price', 'intro']
+}
+</script>
+
+<style>
+.my-product {
+  width: 400px;
+  padding: 20px;
+  border: 2px solid #000;
+  border-radius: 5px;
+  margin: 10px;
+}
+</style>
+```
+
+
+
+#### 2.6.2、组件化通信 子 -> 父
+
+ 				由于组件通信之间具备**单向数据流**的特点 所以子 -> 父无法向父 -> 子那样去传递数据 需要借助**自定义事件**实现该功能
+
+```vue
+// 子组件
+<template>
+  <div class="my-product">
+    <h3>标题: {{ title }}</h3>
+    <p>价格: {{ price }}元</p>
+    <p>{{ intro }}</p>
+    <button @click="fn">砍一元</button>
+  </div>
+  
+</template>
+
+<script>
+import eventBus from '../EventBus/index'
+
+export default {
+  // 定义变量 接收父组件传递来的变量
+  props: ['index','title', 'price', 'intro'],
+
+  methods:{
+    // 当点击是触发该函数
+    fn(){
+      // 用来触发父组件自定义事件 并传递相应参数 使用$emit可以实现数据传递
+      //this.$emit(自定义事件名,[...传递的相应参数])
+      this.$emit('subprice',1,this.index)   //子向父组件传递
+    },
+  }
+}
+</script>
+
+<style>
+.my-product {
+  width: 400px;
+  padding: 20px;
+  border: 2px solid #000;
+  border-radius: 5px;
+  margin: 10px;
+}
+</style>
+```
+
+```vue
+// 父组件
+<template>
+  <div>
+    <!-- 
+      v-for循环 遍历循环组件
+      定义自定义事件subprice 用来改变数据 同时接收子组件传递当前的索引
+     -->
+    <MyP v-for="(obj,index) in list" :key="obj.id"
+      :title="obj.proname"
+      :price="obj.proprice"
+      :intro="obj.info"
+      :index='index'
+      @subprice='fn'
+    ></MyP>
+  </div>
+</template>
+
+<script>
+import MyP from './components/MyProuduct-sub.vue'
+
+export default {
+  data(){
+    return {
+      list: [
+    { id: 1, proname: "超级好吃的棒棒糖", proprice: 18.8, info: '开业大酬宾, 全场8折' },
+    { id: 2, proname: "超级好吃的大鸡腿", proprice: 34.2, info: '好吃不腻, 快来买啊' },
+    { id: 3, proname: "超级无敌的冰激凌", proprice: 14.2, info: '炎热的夏天, 来个冰激凌了' },
+],
+    }
+  },
+  components:{
+    MyP:MyP
+  },
+  methods:{
+    // 自定义事件的处理函数  可以接收子组件传递过来的值
+    fn(val,index){
+      this.list[index].proprice > 1 && (this.list[index].proprice = (this.list[index].proprice - val).toFixed(2))
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>
+```
+
+
+
+#### 2.6.3、组件化通信 子 -> 子
+
+​				因为子组件与子组件之间不存在联系 无法传递数据 所以我们借用**EventBus**来实现子组件之间数据传递 
+
+​				**EventBus原理：**是src目录下的文件夹 里面包含一个index.js文件 js文件的本质就是一个空的Vue对象
+
+![image-20210416122123301](D:\github\笔记相关\子组件之间传递信息图解.png)
+
+```js
+//src/EventBus/index.js 文件内容
+import Vue from 'vue'			//导入vue对象
+
+export default new Vue()		//导出一个vue的空对象
+```
+
+```vue
+//子组件一 
+<template>
+  <div class="my-product">
+    <h3>标题: {{ title }}</h3>
+    <p>价格: {{ price }}元</p>
+    <p>{{ intro }}</p>
+    <button @click="fn">砍一元</button>
+  </div>
+  
+</template>
+
+<script>
+//导入vue空对象 EventBus 后面的index.js可以省略不写 导入时默认找文件下的index.js文件
+import eventBus from '../EventBus/index'
+
+export default {
+  // 定义变量 接收父组件传递来的变量
+  props: ['index','title', 'price', 'intro'],
+
+  methods:{
+    // 当点击是触发该函数
+    fn(){
+      // 用来触发父组件自定义事件 并传递相应参数
+      //this.$emit(自定义事件名,[...传递的相应参数])
+      //this.$emit('subprice',1,this.index)   //子向父组件传递
+      eventBus.$emit('send',this.index,1)   //子组件与子组件进行传递
+    },
+  }
+}
+</script>
+
+<style>
+.my-product {
+  width: 400px;
+  padding: 20px;
+  border: 2px solid #000;
+  border-radius: 5px;
+  margin: 10px;
+}
+</style>
+```
+
+```vue
+//子组件二
+<template>
+  <ul class="my-product">
+      <li v-for="(item, index) in arr" :key="index">
+          <span>{{ item.proname }}</span>
+          <span>{{ item.proprice }}</span>
+      </li>
+  </ul>
+</template>
+
+<script>
+//导入vue空对象 EventBus 后面的index.js可以省略不写 导入时默认找文件下的index.js文件
+import eventBus from '../EventBus/index'
+
+export default {
+  props: ['arr'],
+    // 注册组件完成 监听send事件
+  created(){
+    // 用来接受其他组件传来的数据 然后处理数据
+    eventBus.$on('send',(index,val) => {
+      this.arr[index].proprice > 1 && (this.arr[index].proprice = (this.arr[index].proprice - val).toFixed(2))
+    })
+  }
+}
+</script>
+
+<style>
+.my-product {
+  width: 400px;
+  padding: 20px;
+  border: 2px solid #000;
+  border-radius: 5px;
+  margin: 10px;
+}
+</style>
+```
+
+
+
+
+
+
+
+
 
 
 
