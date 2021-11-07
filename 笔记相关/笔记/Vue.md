@@ -1223,7 +1223,9 @@ const dom = {
 
 #### 2.6.1、组件通信 父 -> 子
 
-​				父组件的信息需要传递给子组件
+​				父组件的信息需要传递给子组件  
+
+​				**注：父向子传递数据的时候 若传递的是简答数据类型是直接传值过去 子组件更改会报出警告 若传递的是复杂数据类型 则传递的是地址 子组件可以修改 						同时父组件内容也会改变**
 
 ```vue
 // 父组件(App.vue) 基础写法
@@ -1514,19 +1516,348 @@ export default {
 
 
 
+### 2.7、vue的生命周期
+
+​				一个vue组件从创建到销毁的过程 就是vue的生命周期 其中vue生命周期一共包括**四个阶段 八个函数**
+
+**初始化阶段  ： beforeCreate()     created()**
+
+**捕获阶段：beforeMount()  mounted()**
+
+**更新阶段：beforeUpdate()  updated()**
+
+**销毁阶段：beforeDestroy()  destroyed()**
+
+<img src="D:\github\笔记相关\vue生命周期图解.png" alt="Day03" style="zoom:50%;" />
 
 
 
+### 2.8、钩子函数
+
+作用: 特定的时间点，执行特定的操作
+
+场景: 组件创建完毕后，可以在created 生命周期函数中发起Ajax 请求，从而初始化 data 数据
 
 
 
+| **阶段** | **方法名**    | **方法名** |
+| -------- | ------------- | ---------- |
+| 初始化   | beforeCreate  | created    |
+| 挂载     | beforeMount   | mounted    |
+| 更新     | beforeUpdate  | updated    |
+| 销毁     | beforeDestroy | destroyed  |
 
 
 
+**注：其中初始化和挂载阶段的钩子函数在都带一定时间后 都会自动执行  但是更新的钩子需要在需要数据触发 才会执行  而销毁阶段函数 需要vue组件被销毁才会执行** 
+
+```vue
+//子组件  list.vue
+<template>
+  <div>
+    <p>{{ msg }}</p>
+    <ul id="myUL">
+      <li v-for="(itme, index) in arr" :key="index">{{ itme }}</li>
+    </ul>
+    <button @click="arr.push(100)">加</button>
+  </div>
+</template>
+
+<script>
+//export default之后的{}就是一个vue的实例化对象
+export default {
+  data() {
+    return {
+      msg: "hello",
+      arr: [1, 2, 3, 4, 5],
+      timer: null,
+    };
+  },
+  //一、初始化
+  //执行时间：在vue对象实例化后 --- 给vue对象挂载属性和方法之间执行
+  beforeCreate() {
+    console.log("beforeCreate -- 执行");
+    console.log(this.msg); // undefined
+  },
+  //执行时间：给vue对象挂载属性和方法初始化之后
+  //使用场景 ：网络请求 全局的事件(滚动事件等)
+  created() {
+    console.log("created -- 执行");
+    console.log(this.msg);
+    this.timer = setInterval(() => {
+       console.log("haha");
+    }, 1000);
+  },
+
+  // 二、挂载
+  //执行时间：属性和方法初始化完成后 真实DOM挂在之前
+  //使用场景：预处理data数据
+  beforeMount() {
+    console.log("beforeMount -- 执行");
+    console.log(document.getElementById("myP"));
+  },
+  //执行时间：真实DOM挂载之后
+  //使用场景: 获取真实DOM元素操作DOM
+  mounted() {
+    console.log("mounted -- 执行");
+    console.log(document.getElementById("myP"));
+  },
+
+  // 三、更新（数据发生改变才触发）
+  // 执行时间： 更新之前(获取不到新增元素)
+  beforeUpdate() {
+    console.log("beforeUpdate -- 执行");
+    console.log(document.querySelectorAll("#myUL>li")[5]); //undefined
+  },
+  // 执行时间： 更新之后(可以获取到新增元素)
+  updated() {
+    console.log("updated -- 执行");
+    console.log(document.querySelectorAll("#myUL>li")[5]);
+  },
+
+  // 四、销毁
+  //执行时间： v-if=false销毁vue实例
+  //使用场景： 释放全局时间 定时器 计时器 全局事件等 (在两个事件那个里面执行都行)
+  beforeDestroy() {
+    console.log("beforeDestroy -- 执行");
+    clearInterval(this.timer); // 销毁全局定时器
+  },
+  destroyed() {
+    console.log("destroyed -- 执行");
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+```vue
+//父组件 App.vue
+<template>
+  <div>
+    <h1 id="myP">1、生命周期</h1>
+    <Life v-if="a"></Life>
+    <button @click="a = false">销毁组件</button>
+  </div>
+</template>
+
+<script>
+import Life from "./components/life.vue";
+
+export default {
+  data() {
+    return {
+      a: true,
+    };
+  },
+  components: {
+    Life,
+};
+</script>
+
+<style>
+</style>
+```
 
 
 
+### 2.9、Vue中获取DOM元素和$nextTick的作用
+
+**Vue中获取DOM元素：$refs**
+
+```vue
+<template>
+  <div>
+    <p>1、获取DOM元素</p>
+    <h1 id="h" ref="myH">我是一个孤独可怜又能吃的h1</h1>
+    <hr />
+    <p>2、获取组件对象 -- 可以使用里面的属性和方法</p>
+    <Demo ref="de"></Demo>
+    <hr />
+    <p>3. vue更新DOM是异步的</p>
+    <p ref="myP">{{ count }}</p>
+    <button @click="btn">点击count+1, 马上提取p标签内容</button>
+  </div>
+</template>
+
+<script>
+import Demo from "./Child/demo.vue";
+export default {
+  data() {
+    return {
+      count: 0,
+    };
+  },
+  // 在真实dom挂载完成后获取元素
+  mounted() {
+    console.log(document.getElementById("h")); // h1
+    console.log(this.$refs.myH); // h1
+
+    //获取组件Demo 并执行fn函数
+    this.$refs.de.fn();
+  },
+  components: {
+    Demo,
+  },
+  methods: {
+    btn() {
+      this.count++;
+      //因为vue中修改dom中的值是个异步操作 所以打印结果是0
+      // console.log(this.$refs.myP.innerHTML);
+
+      // DOM更新完成会挨个触发$nextTick里的函数体
+      this.$nextTick(() => {
+        console.log(this.$refs.myP.innerHTML);
+      });
+    },
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+**Vue中$nextTick的作用**
+
+```vue
+<template>
+  <div>
+    <input ref="myInp" type="text" placeholder="这是一个输入框" v-if="isShow" />
+    <button v-else @click="btn">点击我进行搜索</button>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      isShow: false,
+    };
+  },
+  methods: {
+    btn() {
+      this.isShow = true;
+      //因为vue操作dom是异步操作  所以获取不到该dom元素 这段代码会报错
+      // this.$refs.myInp.focus();
+
+      //解决方法一： 使用$nextTick
+      this.$nextTick(() => {
+        this.$refs.myInp.focus();
+      });
+    },
+    // async btn() {
+    //   this.isShow = true;
+    //   // 解决方法二：因为$nextTick返回的是一个promise对象 所以可以使用await和async解决
+    //   await this.$nextTick();
+    //   this.$refs.myInp.focus();
+    // },
+  },
+};
+</script>
+
+<style>
+</style>
+```
 
 
 
+### 2.10、组件中name的作用
+
+​				组件中的name可以当做组件的别名使用
+
+```vue
+// 子组件
+<template>
+  <div>
+    <p>我是一个Com组件</p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "ComNameHaHa", // 注册时可以定义自己的名字
+};
+</script>
+
+<style>
+</style>
+
+-----------------------------------------------------------------
+
+// 父组件
+<template>
+  <div>
+    <h1>组件中name的作用</h1>
+    <ComNameHaHa></ComNameHaHa>
+  </div>
+</template>
+
+<script>
+import Com from "./components/Com.vue";
+
+export default {
+  components: {
+    [Com.name]: Com, //注册时要是用[组件名.name]：组件名来设置
+    //等价于: 'ComNameHaHa' : Com
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+
+
+## 3、axios使用
+
+特点
+
+* 支持客户端发送Ajax请求
+* 支持服务端Node.js发送请求
+* 支持Promise相关用法
+* 支持请求和响应的拦截器功能
+* 自动转换JSON数据
+* axios 底层还是原生js实现, 内部通过Promise封装的
+
+**注：使用axios 最终给我们返回的是一个Promise实例 可通过.then、.catch获取成功和失败的结果**
+
+```bash
+# 在项目中安装安装
+yarn add axios
+```
+
+```js
+// 项目中到导入
+import axios from 'axios'
+// 全局配置根路径
+axios.defaults.baseURL = "http://123.57.109.30:3006";
+```
+
+```js
+// 使用
+// GET请求
+ axios({
+        url: "/api/getbooks",
+        // url: "http://123.57.109.30:3006/api/getbooks?bookname=" + this.bname,
+        method: "GET",
+        params: {
+          bookname: this.bname,
+        },
+    .then((res) => console.log(res)) 			//打印成功结果
+	.catch(err => console.log(err))				//打印错误信息
+
+// POST请求
+axios({
+        url: "/api/addbook",
+        method: "POST",
+        data: {
+          appkey: "7250d3eb-18e1-41bc-8bb2-11483665535a",
+          ...this.bookObj,								//js高级语法 拓展运算符 将对象解析出来
+        },
+    .then(res => console.log(res)) 			//打印成功结果
+	.catch(err => console.log(err))				//打印错误信息
+```
 
