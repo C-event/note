@@ -1811,7 +1811,462 @@ export default {
 
 
 
-## 3、axios使用
+### 2.11、动态组件
+
+​				多个组件使用同一个挂载点，并动态切换，这就是动态组件 其中要使用**component**来设置挂载点 
+
+```vue
+<template>
+  <div>
+    <button @click="comName = 'UserName'">账号密码填写</button>
+    <button @click="comName = 'UserInfo'">个人信息填写</button>
+
+    <p>下面显示注册组件-动态切换:</p>
+    <div style="border: 1px solid red">
+      <!-- 设置挂载点 -->
+      <component :is="comName"></component>
+    </div>
+  </div>
+</template>
+
+<script>
+// 导入组件
+import UserName from "../components/01/UserName";
+import UserInfo from "../components/01/UserInfo";
+
+export default {
+  data() {
+    return {
+      comName: "UserName",
+    };
+  },
+  components: {
+    UserName,
+    UserInfo,
+  },
+};
+</script>
+
+<style>
+</style>
+
+--------------------------------------------------------
+
+//UserName.vue
+<template>
+  <div>
+      <div>
+          <span>用户名:</span>
+          <input type="text">
+      </div>
+      <div>
+          <span>密码:</span>
+          <input type="password">
+      </div>
+  </div>
+</template>
+
+<script>
+export default {
+}
+</script>
+
+<style>
+</style>
+
+------------------------------------------------------
+
+// UserInfo.vue
+<template>
+  <div>
+      <div>
+          <span>人生格言:</span>
+          <input type="text">
+      </div>
+      <div>
+          <span>个人简介:</span>
+          <textarea></textarea>
+      </div>
+  </div>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+
+</style>
+```
+
+
+
+#### 2.11.1、动态组件的缓存
+
+​			**动态组件的原理**：由于动态组件的切换来设置该vue实例的添加和销毁 性能并不是很高  所以我们使用**keep-alive**来实现动态组件的缓存 同时使用缓存后 该组件会多出**两个钩子函数 activated 和 deactivated 来监听组件是获取激活还是失去激活**
+
+```vue
+<template>
+  <div>
+    <button @click="comName = 'UserName'">账号密码填写</button>
+    <button @click="comName = 'UserInfo'">个人信息填写</button>
+
+    <p>下面显示注册组件-动态切换:</p>
+    <div style="border: 1px solid red">
+      <!-- 使用keep-alive包裹起来的的组件 它会进行缓存 -->
+      <keep-alive>
+        <component :is="comName"></component>
+      </keep-alive>
+    </div>
+  </div>
+</template>
+
+<script>
+import UserName from "../components/02/UserName";
+import UserInfo from "../components/02/UserInfo";
+
+export default {
+  data() {
+    return {
+      comName: "UserName",
+    };
+  },
+  components: {
+    UserName,
+    UserInfo,
+  },
+};
+</script>
+
+<style>
+</style>
+
+-----------------------------------------------------------------
+
+//UseName.vue
+<template>
+  <div>
+    <div>
+      <span>用户名:</span>
+      <input type="text" />
+    </div>
+    <div>
+      <span>密码:</span>
+      <input type="password" />
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  created() {
+    console.log("创建了");
+  },
+  destroyed() {
+    console.log("销毁了");
+  },
+  // 被缓存的组件会多了两个钩子函数
+  activated() {					//获得激活时触发
+    console.log("Username-激活了");
+  },
+    
+  deactivated() {				//失去激活时触发
+    console.log("UserInfo-切走了");
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+
+
+### 2.12、组件插槽
+
+​				vue提供组件插槽能力, 允许开发者在封装组件时，把不确定的部分定义为插槽(slot)
+
+#### 2.12.1、组件插槽的基本使用
+
+```vue
+// 子组件
+<template>
+  <div>
+    <!-- 按钮标题 -->
+    <div class="title">
+      <h4>芙蓉楼送辛渐</h4>
+      <span class="btn" @click="isShow = !isShow">
+        {{ isShow ? "收起" : "展开" }}
+      </span>
+    </div>
+    <!-- 下拉内容 -->
+    <div class="container" v-show="isShow">
+      <!-- 插槽的占位符 里面的内容是默认的内容 若不传值则显示默认内容 -->
+      <slot>默认内容</slot>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      isShow: false,
+    };
+  },
+};
+</script>
+
+-----------------------------------------------------------------------
+
+// 父组件
+<template>
+  <div id="container">
+    <div id="app">
+      <h3>案例：折叠面板</h3>
+      <Pannel>
+        <img src="../assets/mm.gif" alt="" />
+        <span>我是span</span>
+      </Pannel>
+      <Pannel>
+        <!-- 可以根据自己想要的内容更换插槽中的内容 -->
+        <p>寒雨连江夜入吴,</p>
+        <p>平明送客楚山孤。</p>
+        <p>洛阳亲友如相问，</p>
+        <p>一片冰心在玉壶。</p>
+      </Pannel>
+      <Pannel> </Pannel>
+    </div>
+  </div>
+</template>
+
+<script>
+// 导入组件
+import Pannel from "../components/03/Pannel.vue";
+export default {
+  // 注册组件
+  components: {
+    Pannel,
+  },
+};
+</script>
+```
+
+
+
+#### 2.12.2、具名插槽
+
+​					当一个组件中 有多个不确定部分时 就需要使用具名插槽 即给每个插槽设置一个name属性 开发者根据name属性来实现内容和插槽的对应
+
+```vue
+// 父组件
+<template>
+  <div id="container">
+    <div id="app">
+      <h3>案例：折叠面板</h3>
+      <Pannel>
+        <!-- 使用v-slot来指定插槽 -->
+        <template v-slot:title>
+          <span>你好啊</span>
+        </template>
+        <template v-slot:content>
+          <img src="../assets/mm.gif" alt="" />
+          <span>我是span</span>
+        </template>
+      </Pannel>
+
+      <Pannel>
+        <!-- v-slot的简写方法 #name名-->
+        <template #title>
+          <span>hello</span>
+        </template>
+        <template #content>
+          <p>寒雨连江夜入吴,</p>
+          <p>平明送客楚山孤。</p>
+          <p>洛阳亲友如相问，</p>
+          <p>一片冰心在玉壶。</p>
+        </template>
+      </Pannel>
+
+      <Pannel>
+        <template #title>
+          <span>hi</span>
+        </template>
+          <!-- 若有插槽不传值 则显示默认值 -->
+      </Pannel>
+    </div>
+  </div>
+</template>
+
+<script>
+import Pannel from "../components/04/Pannel.vue";
+export default {
+  components: {
+    Pannel,
+  },
+};
+</script>
+
+--------------------------------------------------------------------------------------------
+
+// 子组件
+<template>
+  <div>
+    <!-- 按钮标题 -->
+    <div class="title">
+      <slot name="title"></slot>
+      <span class="btn" @click="isShow = !isShow">
+        {{ isShow ? "收起" : "展开" }}
+      </span>
+    </div>
+    <!-- 下拉内容 -->
+    <div class="container" v-show="isShow">
+      <!-- 插槽的占位符 里面的内容是默认的内容-->
+      <slot name="content">默认内容</slot>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      isShow: false,
+    };
+  },
+};
+</script>
+```
+
+
+
+#### 2.12.3、作用域插槽
+
+​					子组件里值, 在给插槽赋值时在父组件环境下使用
+
+```vue
+// 父组件
+<template>
+  <div id="container">
+    <div id="app">
+      <h3>案例：折叠面板</h3>
+      <Pannel>
+        <!-- 使用v-slot="scope"可以获取到slot插槽中绑定的内容{row:defaultObj} -->
+        <template v-slot="scope">
+          <span>{{ scope.row.defaultTwo }}</span>			// 修改子组件的内容
+        </template>
+      </Pannel>
+    </div>
+  </div>
+</template>
+
+<script>
+import Pannel from "../components/05/Pannel.vue";
+export default {
+  components: {
+    Pannel,
+  },
+};
+</script>
+
+-----------------------------------------------------------------------------
+
+// 子组件
+<template>
+  <div>
+    <div class="title">
+      <h1>芙蓉楼送辛渐</h1>
+      <span class="btn" @click="isShow = !isShow">
+        {{ isShow ? "收起" : "展开" }}
+      </span>
+    </div>
+    <div class="container" v-show="isShow">
+        <!-- 使用:属性名=‘属性值’  可以让父组件v-slot获取到该对象 -->
+      <slot :row="defaultObj">{{ defaultObj.defaultOne }}</slot>		// 若无传值这显示该默认信息
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  // 作用域插槽使用场景：使用插槽时 需要使用插槽中的变量
+  data() {
+    return {
+      isShow: false,
+      defaultObj: {
+        defaultOne: "无名氏",
+        defaultTwo: "小传同学",
+      },
+    };
+  },
+};
+</script>
+```
+
+
+
+### 2.13、自定义指令
+
+​				  由于vue里面的内置指令有些无法满足我们的需求 所以我们可以自定义属性 来实现我们想要的功能
+
+```js
+// 全局自定义指令
+Vue.directive('gfouce',{
+    inserted(el){
+        el.focus();
+    }
+})
+
+// 定义另一个自定义指令 里面的update可以监听vue变量的变化 其中el是该DOM元素 binding是用来接收传递的参数 
+Vue.directive('color',{
+    inserted(el,binding){
+        el.style.color = binding.value
+    },
+    // 变量改变的时候触发
+    update(el,binding){
+        el.style.color = binding.value
+    }
+})
+```
+
+```vue
+<template>
+  <div>
+    <!-- <input type="text" v-gfouce /> -->
+    <input type="text" v-focus />
+    <!-- 自定义指令 -->
+    <!-- <p v-color="'red'">修改文字颜色</p> -->
+    <p v-color="colorStr">修改文字颜色</p>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      colorStr: "red",
+    };
+  },
+  // 局部自定义指令
+  directives: {
+    focus: {
+      inserted(el) {
+        el.focus();
+      },
+    },
+  },
+};
+</script>
+
+<style>
+</style>
+```
+
+
+
+## 三、axios使用
 
 特点
 
@@ -1860,4 +2315,281 @@ axios({
     .then(res => console.log(res)) 			//打印成功结果
 	.catch(err => console.log(err))				//打印错误信息
 ```
+
+
+
+## 四、Vue路由(vue-router)
+
+### 4.1、基本使用
+
+​			实现页面与组件之间的映射  
+
+优点：
+
+* 整体不刷新页面，用户体验更好
+* 数据传递容易, 开发效率高
+* 可以实现局部刷新 不会全局刷新
+
+缺点：
+
+* 开发成本高(需要学习专门知识)
+* 首次加载会比较慢一点。不利于seo
+
+```bash
+# 安装 
+yarn add vue-router
+```
+
+```js
+// main.js中导入
+import VueRouter from "vue-router"
+// 导入组件
+import My from '@/views/My'						// @ 在vue中代表当前文件下src的绝对路径
+import Part from '@/views/Part'
+
+// 全局注册
+Vue.use(VueRouter)
+
+// 定义规则 页面与组件的相互对应
+const routes = [
+    {
+        path:'/find',
+        component: Find
+    },
+    {
+        path:'/my',
+        component:My
+    },
+]
+
+// 生成路由对象
+const router = new VueRouter({
+    routes:routes;						//路由对象中 routes是key(必须)  这边可以简写为routes
+})
+
+// 将路由对象添加到vue实例中
+new Vue({
+    router:router,             //这边可以简写为router
+    render: h => h(App),
+}).$mount('#app')
+
+// 在vue文件中 导入router-view标签占位
+//<router-view></router-view>
+```
+
+
+
+### 4.2、重定向
+
+​			 当用户访问某个页面时 让页面跳转到另一个页面
+
+```js
+// 在定义规则中写
+const routes = [
+    {
+        path:'/'			//即访问的根路径
+        redirect:'/find'	//当用户访问根路径时 自动定向到find页面
+    },
+    {
+        path:'/find',
+        component: Find
+    },
+    {
+        path:'/my',
+        component:My
+    },
+]
+```
+
+
+
+### 4.3、错误404设置
+
+​			  当用户访问不存在的路由是 回事一个空白页面 并且控制台会报错 所以这是我需要设置404页面来提醒用户
+
+```js
+//在mian.js的规则中定义
+
+// 导入404组件
+import NotFound from '@/views/NotFound'
+
+const routes = [
+    {
+        path:'/'			
+        redirect:'/find'	
+    },
+    {
+        path:'/find',
+        component: Find
+    },
+    {
+        path:'/my',
+        component:My
+    },
+    // 切记这段要写在最后面 因为路由的查找是从上到下依次查找
+    {		
+        path:'*',						// * 代表没有规则 任何路径都可以匹配
+        component:NotFound
+    },
+]
+```
+
+
+
+### 4.4、声明式导航-渲染
+
+​				当我们使用a链接实现页面的转换切换时  我们可以使用**router-link**实现声明式渲染 它会自动帮我们给当前激活的标签添加两个类 我们可以自行对该类进行设置
+
+```vue
+<template>
+  <!-- 声明式导航 
+  router-link是vue-router中自带的全局组件的 可以帮助我们实现声明式导航
+  我们点击时 会自动为该元素添加两个激活类 我们可以自行对激活进行设置
+
+  语法: <router-link to='路径地址'>标题名</router-link>
+
+  -->
+  <div>
+    <div class="footer_wrap">
+      <router-link to="/find">发现音乐</router-link>
+      <router-link to="/my">我的音乐</router-link>
+      <router-link to="/part">朋友</router-link>
+    </div>
+    <div class="top">
+      <router-view></router-view>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {};
+</script>
+
+<style scoped>
+.footer_wrap {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  width: 100%;
+  text-align: center;
+  background-color: #333;
+  color: #ccc;
+}
+.footer_wrap a {
+  flex: 1;
+  text-decoration: none;
+  padding: 20px 0;
+  line-height: 20px;
+  background-color: #333;
+  color: #ccc;
+  border: 1px solid black;
+}
+.footer_wrap a:hover {
+  background-color: #555;
+}
+.top {
+  padding-top: 62px;
+}
+
+/* 对激活类的设置 */
+.footer_wrap .router-link-active {
+  color: white;
+  background: black;
+}
+</style>
+```
+
+### 4.5、声明式导航-传值
+
+​				在拼接的路径后面添加数据 该路由组件可以通过**$route.query.属性名** 和 **$route.params.属性名** 来获取到值数据
+
+```js
+// 使用$route.params.属性名来传值时要在main.js 的配置 规则
+const routes = [
+    {   
+        // 传值方法二 ：需要设置 路径(可以拼接多个组件) /:属性名/:属性名/...
+        path: '/part/:username/:id', 
+        component: Part 
+    },
+]
+```
+
+```vue
+// App.vue中
+<template>
+  <div>
+    <div class="footer_wrap">
+      <router-link to="/find">发现音乐</router-link>
+      <router-link to="/my">我的音乐</router-link>
+      <router-link to="/part">朋友</router-link>
+      <!-- 传值方法一 后面拼接 ?属性名=值 -->
+      <router-link to="/part/?name=小明">朋友小明</router-link>
+      <!-- 传值方法二 后面直接拼接值 但需要在main.js中设置 -->
+      <router-link to="/part/小红">朋友小红</router-link>
+    </div>
+    <div class="top">
+      <router-view></router-view>
+    </div>
+  </div>
+</template>
+
+// 路由组件
+<template>
+  <div>
+    <!-- 通过$route.query.属性名 可以获取到方法一的值
+         通过$route.params.属性名 可以获取到方法二的值
+     -->
+    <p>
+      人名：{{ $route.query.name }}--{{ $route.params.username
+      }}{{ $route.params.id }}
+    </p>
+  </div>
+</template> 
+```
+
+
+
+### 4.6、编程式导航
+
+​			  我们除了可以使用vue-router中自带的router-link来实现声明式导航  我们也可以使用原生的方法来实现导航 即**编程式导航**
+
+```vue
+// App.vue
+<template>
+  <!-- 声明式导航 
+  router-link是vue-router中自带的全局组件的 可以帮助我们实现声明式导航
+  我们点击时 会自动为该元素添加两个激活类 我们可以自行对激活进行设置
+  -->
+  <div>
+    <div class="footer_wrap">
+      <span @click="btn('/find', 'Find')">发现音乐</span>
+      <span @click="btn('/my', 'My')">我的音乐</span>
+      <span @click="btn('/part', 'Part')">朋友小明</span>
+    </div>
+    <div class="top">
+      <!-- 路由挂载点 -->
+      <router-view></router-view>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  methods: {
+    // 使用this.$router.push({path:路径名})
+    // 使用this.$router.push({name:name名})  使用name名是需要在规则中声明
+    // 使用name时 路径上还是使用的path 使用name所以跟方便日后修改(更改路径中的path name不会修改)
+    btn(path, name) {
+      this.$router.push({
+        // path: path,
+        name: name,
+      });
+    },
+  },
+};
+</script>
+```
+
+
 
