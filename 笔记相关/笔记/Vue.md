@@ -2320,6 +2320,8 @@ axios({
 
 ## 四、Vue路由(vue-router)
 
+注：vue-router中自带的两个对象 **$route**和**$router**  前者用来**获取当前的路由**  而后者**获取的全局的路由**(本质是个vue实例对象) 我们可以对它使用相应方法
+
 ### 4.1、基本使用
 
 ​			实现页面与组件之间的映射  
@@ -2436,9 +2438,26 @@ const routes = [
 
 
 
-### 4.4、声明式导航-渲染
+### 4.4、路由模式的修改
 
-​				当我们使用a链接实现页面的转换切换时  我们可以使用**router-link**实现声明式渲染 它会自动帮我们给当前激活的标签添加两个类 我们可以自行对该类进行设置
+​			  由于路由模式默认的是hash模式 在路径上会自带一个# 看起来不好看 所以我们可以在实例化vuerouter对象时 进行更改
+
+```js
+const router = new VueRouter({
+    routes,
+    mode:'history'						//设置路由模式为history  但部署到服务器上时需要进行设置 因为服务器上这个默认访问的是文件夹
+})
+```
+
+
+
+### 4.5、声明式导航-渲染
+
+​				当我们使用a链接实现页面的转换切换时  我们可以使用**router-link**实现声明式渲染 它会自动帮我们给当前激活的标签添加两个类 我们可以自行对该类进行设置 
+
+**注：router-link-exact-active  (精确匹配) url中hash值路径, 与href属性值完全相同, 设置此类名**
+
+​		**router-link-active             (模糊匹配) url中hash值,    包含href属性值这个路径**
 
 ```vue
 <template>
@@ -2500,7 +2519,7 @@ export default {};
 </style>
 ```
 
-### 4.5、声明式导航-传值
+### 4.6、声明式导航-传值
 
 ​				在拼接的路径后面添加数据 该路由组件可以通过**$route.query.属性名** 和 **$route.params.属性名** 来获取到值数据
 
@@ -2550,7 +2569,7 @@ const routes = [
 
 
 
-### 4.6、编程式导航
+### 4.7、编程式导航
 
 ​			  我们除了可以使用vue-router中自带的router-link来实现声明式导航  我们也可以使用原生的方法来实现导航 即**编程式导航**
 
@@ -2592,4 +2611,108 @@ export default {
 ```
 
 
+
+### 4.8、编程式导航-传值
+
+```vue
+<template>
+  <div>
+    <div class="footer_wrap">
+      <span @click="one">朋友小智</span>
+    </div>
+    <div class="top">
+      <!-- 路由挂载点 -->
+      <router-view></router-view>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  methods: {
+    // 注:使用path传值的时候会忽略params 所以推荐使用name+query的方式传递 
+    // 当路径上的hash值与你要跳转的hash一直 会报出冗余问题 不会进行路径跳转
+    // 若这边使用query传值 则接收方也需要使用$route.query.属性名接收
+    one() {
+      this.$router.push({
+        // path: "/part",
+        name: "Part",
+        query: {
+          name: "小智", //使用属性名和属性值的传值方式
+        },
+        params: {
+          username: "小智",
+        },
+      });
+    },
+  },
+};
+</script>
+```
+
+
+
+### 4.9、路由嵌套
+
+​			 若在当前路由下 还需要进行切换页面 只需要在里面在嵌套一个路由即可 vue文件里面的写法相同 但需要在main.js配置
+
+```js
+// main.js
+const routes = [
+    ...
+    
+    {
+        path:"/find",
+        name:'Find',
+        component:Find,
+        children:[     //路由里面在嵌套一个路由
+            {
+                path:'recommend',
+                component:Recommend
+            },
+            {
+                path:'ranking',
+                component:Ranking
+            },
+            {
+                path:'songlist',
+                component:SongList
+            }
+        ]
+    },
+    ...
+]
+```
+
+
+
+### 4.10、路由守卫
+
+​				当用户访问某个路由时  我们需要对此进行权限设置 这时候我们就需要使用到**路由守卫**
+
+```js
+// main.js
+...
+// 路由守卫 用户访问路由时 需要进行权限认证的时候使用
+const isLogin = false;  //登录状态
+router.beforeEach((to, from, next) => {
+    // to 代表要去那个路由
+    // from 代表从那个路由来
+    // next是一个函数 next() 代表正常放行 next(false)代表停在当前页面 next('路径名')代表要强制跳转到对应路由
+    // 注意: 若next不写 则会默认停在原地
+    if(to.path=='/my' && isLogin == false){
+        alert("请先登录")
+        next(false);
+    }else{
+        next()
+    }
+})
+...
+```
+
+
+
+### 4.11、vue移动端组件库
+
+详情请看：https://element.eleme.cn/#/zh-CN/
 
