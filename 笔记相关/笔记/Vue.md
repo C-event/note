@@ -2712,7 +2712,37 @@ router.beforeEach((to, from, next) => {
 
 
 
-### 4.11、vue移动端组件库
+## 五、vue移动端组件库 - vant
 
 详情请看：https://element.eleme.cn/#/zh-CN/
+
+### 5.1、vant自动适配组件
+
+​		**postcss postcss-pxtorem**
+
+* postcss – 配合webpack翻译css代码
+* postcss-pxtorem – 配合webpack, 自动把px转成rem
+* 新建postcss.config.js – 设置相关配置
+* 重启服务器, 再次观察Vant组件是否适配
+
+```bash
+# 安装  postcss-pxtorem@5.1.1用来适配vue-cli 2.0
+yarn add postcss postcss-pxtorem@5.1.1    
+```
+
+在postcss.config.js的添加一下配置
+
+```js
+module.exports = {
+  plugins: {
+    'postcss-pxtorem': {
+      // 能够把所有元素的px单位转成Rem
+      // rootValue: 转换px的基准值。
+      // 例如一个元素宽是75px，则换成rem之后就是2rem。
+      rootValue: 37.5,				//
+      propList: ['*']
+    }
+  }
+}
+```
 
