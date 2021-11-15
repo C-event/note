@@ -393,7 +393,7 @@ export default {
 
 
 
-#### 2.4.3、v-on -- 事件绑定    事件对象e  v-on -- 修饰符
+#### 2.4.3、v-on -- 事件绑定、事件对象e 、v-on -- 修饰符
 
 ```vue
 <template>
@@ -507,7 +507,7 @@ export default {
 
 **基本用法：**
 
-```js
+```vue
 <template>
   <div>
     <!-- 
@@ -837,7 +837,7 @@ export default {
 ​               转换格式, 过滤器就是一个**函数**, 传入值返回处理后的值
 
 ```js
-//在mian.js中定义全局过滤器
+//在main.js中定义全局过滤器
 // 全局过滤器 必须要在new Vue前面 可在全局文件中使用
 Vue.filter('reverse',(val,s)=>{
   return val.split("").reverse().join(s)
@@ -2744,5 +2744,480 @@ module.exports = {
     }
   }
 }
+```
+
+
+
+## 六、vuex - 集中式数据状态管理器
+
+### 6.1、使用配置
+
+```bash
+# 安装
+yarn add vuex || npm install vuex
+```
+
+```js
+// src/store/index.js 进行配置
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex);
+
+export const store = new Vuex.Store({
+    // 共享数据仓库
+    state:{},
+    // 数据处理 类似于vue中的computed
+    getters:{},
+    // 编写异步程序 间接修改state仓库中的数据
+    actions:{},
+    // 编写同步程序 唯一直接修改state仓库中数据的方法
+    mutations:{},
+    modules:{}
+})
+```
+
+```js
+// 全局注册（main.js）
+new Vue({
+  render: h => h(App),
+  store                 // 当仓库在全局中注册之后 每个vue组件中都会有一个$store对象
+}).$mount('#app')
+```
+
+
+
+### 6.2、store中每个对象的具体使用方法
+
+​			 **每个对象用法的图解**
+
+![image-20211115205153978](D:\github\笔记相关\vuex里面各个对象用法图解.png)
+
+#### 6.2.1、state的使用
+
+​				**作用：用来存储共享数据的仓库**
+
+```vue
+<template>
+  <div class="add">
+    <!-- 方法一：$store.state.key -->
+    <h3>仓库中num的值为 {{ $store.state.num }}</h3>
+    <h3>仓库中num的值为 {{ num }}</h3>
+  </div>
+</template>
+
+<script>
+// 方法二：导入辅助函数
+import { mapState } from "vuex";
+export default {
+  // 建议给每个组件都起一个名字 方便在vue调试器中查找使用
+  name: "Reduce",
+  computed: {
+    ...mapState(["num"]), // 将仓库里面的数据映射到计算属性中 映射后 可以直接通过num来访问
+  },
+};
+</script>
+```
+
+
+
+#### 6.2.2、mutations的使用
+
+​				**作用：唯一修改state里面数据的方法**
+
+​				**注：里面只能编写同步代码**
+
+```js
+// src/store/index.js
+let store = new Vuex.Store({
+  // 开启严格模式
+  strict:true,
+  
+  state:{
+    // 用来存储共享数据数据
+    num:1000,
+  },
+
+  // 唯一用来更改state里面数据的方法
+  // 注意：mutations里面只能放 同步代码  异步代码放到actions里面
+  mutations:{
+    changeNum(state,data){
+      // console.log(state);  表示仓库数据
+      // console.log(data);   传递来的实参
+      state.num += data
+    },
+  }
+})
+```
+
+```vue
+<template>
+  <div class="add">
+    <p>
+      <button @click="$store.state.num = 300">错误示范</button>
+        <!-- vue调试无法捕获到变化
+           严格模式下会抛出错误
+       -->
+       <!-- 方法一 -->
+      <button @click="$store.commit('changeNum', 10)">num递增10</button>
+      
+      <button @click="changeNum(-10)">num递减10</button>
+    </p>
+  </div>
+</template>
+
+<script>
+// 方法二：导入辅助函数
+import { mapMutations } from "vuex";
+export default {
+  // 建议给每个组件都起一个名字 方便在vue调试器中查找使用
+  name: "Reduce",
+  methods: {
+    ...mapMutations(["changeNum"]),
+  },
+};
+</script>
+```
+
+
+
+#### 6.2.3、action的使用
+
+​				**作用：异步间接修改state数据**
+
+```js
+// src/store/index.js
+let store = new Vuex.Store({
+  // 开启严格模式
+  strict:true,
+  
+  state:{
+    // 用来存储共享数据数据
+    num:1000,
+  },
+    
+  // 唯一用来更改state里面数据的方法
+  // 注意：mutations里面只能放 同步代码  异步代码放到actions里面
+  mutations:{
+    changeNum(state,data){
+      // console.log(state);  表示仓库数据
+      // console.log(data);   传递来的实参
+      state.num += data
+    },
+  }
+
+  // 异步修改state  原理 ： 通过context.commit(方法名，实参)调用mutations里面的函数
+  actions:{
+    changeNumAsync(context,data){
+      // console.log(context);  上下文实例对象 可以理解为仓库实例
+      // console.log(data);   传递过来的实参
+      setTimeout(()=>{
+        context.commit('changeNum',data)
+      },2000)
+    },
+  }
+})
+```
+
+```vue
+<template>
+  <div class="add">
+    <p>
+       <!-- 方法一 -->
+      <button @click="$store.dispatch('changeNumAsync', 10)">异步递增10</button>
+      
+      <button @click="changeNumAsync(-5)">异步num递减5</button>
+    </p>
+  </div>
+</template>
+
+<script>
+// 方法二：导入辅助函数
+import { mapActions } from "vuex";
+export default {
+  // 建议给每个组件都起一个名字 方便在vue调试器中查找使用
+  name: "Reduce",
+  methods: {
+    ...mapActions(["changeNumAsync"]),
+  },
+};
+</script>
+```
+
+
+
+#### 6.2.4、getters的使用
+
+​				**作用：将数据进行处理并且返回**
+
+```js
+// src/store/index.js
+let store = new Vuex.Store({
+  // 开启严格模式
+  strict:true,
+  
+  state:{
+    // 用来存储共享数据数据
+    num:1000,
+  },
+    
+   // 对数据进行处理 类型于vue中的computed
+  getters:{
+    // state是仓库中的state
+    nickname(state){
+      return state.userInfo.nickname
+    },
+    // 箭头函数的简便写法
+    mobile:state=>state.userInfo.mobile
+  },
+})
+```
+
+```vue
+<template>
+  <div class="add">
+    <p>
+       <!-- 方法一 -->
+    <h3>用户的手机号是：{{ $store.getters.mobile }}, 用户的昵称是：{{ $store.getters.nickname }}</h3>
+      
+    <h3>用户的手机号是：{{ mobile }}, 用户的昵称是：{{ nickname }}</h3>
+      
+    </p>
+  </div>
+</template>
+
+<script>
+// 方法二：导入辅助函数
+import { mapGetters } from "vuex";
+export default {
+  // 建议给每个组件都起一个名字 方便在vue调试器中查找使用
+  name: "Reduce",
+  computed: {
+    ...mapGetters(["nickname", "mobile"]),
+  },
+};
+</script>
+```
+
+
+
+### 6.3、案例：vuex的简单使用
+
+```js
+// src/store/index.js
+// 全局配置vuex
+
+import Vue from "vue"
+import Vuex from 'vuex'
+
+import {UserDate} from '../api/user';
+
+// 在vue中安装vuex插件
+Vue.use(Vuex)
+
+// 创建仓库实例
+let store = new Vuex.Store({
+  // 开启严格模式
+  strict:true,
+  
+  state:{
+    // 用来存储共享数据数据
+    num:1000,
+    userInfo:JSON.parse(localStorage.getItem('userInfo')) || {}
+  },
+
+  // 唯一用来更改state里面数据的方法
+  // 注意：mutations里面只能放 同步代码  异步代码放到actions里面
+  mutations:{
+    changeNum(state,data){
+      // console.log(state);  表示仓库数据
+      // console.log(data);   传递来的实参
+      state.num += data
+    },
+    setUserInfo(state,data){
+      // 将数据存储到仓库中
+      state.userInfo = data
+      //数据的持久化
+      localStorage.setItem('userInfo',JSON.stringify(data))
+    }
+  },
+
+  // 异步修改state  原理 ： 通过context.commit(方法名，实参)调用mutations里面的函数
+  actions:{
+    changeNumAsync(context,data){
+      // console.log(context);  上下文实例对象 可以理解为仓库实例
+      // console.log(data);   传递过来的实参
+      setTimeout(()=>{
+        context.commit('changeNum',data)
+      },2000)
+    },
+    
+    // 发起ajax请求
+   async login(context,data){
+      let {data:res} = await UserDate(data)
+      // console.log(res);
+      context.commit('setUserInfo',res.data.userInfo)
+    }
+  },
+
+  // 对数据进行处理 类型于vue中的computed
+  getters:{
+    // state是仓库中的state
+    nickname(state){
+      return state.userInfo.nickname
+    },
+    // 箭头函数的简便写法
+    mobile:state=>state.userInfo.mobile
+  },
+  modules:{}
+})
+
+// 向外导出实例对象
+export default store
+```
+
+```vue
+// app.vue
+<template>
+  <div class="app">
+    <div class="box">
+      <p>用户名：<input v-model="formData.mobile" type="text" /></p>
+      <p>密码： <input v-model="formData.password" type="text" /></p>
+      <p><button @click="login">登录</button></p>
+      <hr />
+      <!-- 传一个空对象 相当于退出功能 -->
+      <p><button @click="$store.commit('setUserInfo', {})">退出</button></p>
+    </div>
+    <div class="flex-box">
+      <Add></Add>
+      <Reduce></Reduce>
+    </div>
+  </div>
+</template>
+
+<script>
+// 导入组件
+import Add from "./components/Add.vue";
+import Reduce from "./components/Reduce.vue";
+export default {
+  components: {
+    Add,
+    Reduce,
+  },
+  data() {
+    return {
+      formData: {
+        mobile: "17342065909",
+        password: "admin888",
+      },
+    };
+  },
+  methods: {
+    login() {
+      this.$store.dispatch("login", this.formData);
+    },
+  },
+};
+</script>
+
+<style>
+.box {
+  width: 1200px;
+  border: 2px solid blue;
+  min-height: 100px;
+  margin: 10px auto;
+}
+.flex-box {
+  width: 1200px;
+  display: flex;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #aaa;
+}
+</style>
+```
+
+```vue
+// 组件Add.vue
+<template>
+  <div class="add">
+    <p>这是一个增加组件</p>
+    <!-- 方法一：$store.state.key -->
+    <h3>仓库中num的值为 {{ $store.state.num }}</h3>
+    <h3>
+      用户的手机号是：{{ $store.getters.mobile }}, 用户的昵称是：{{
+        $store.getters.nickname
+      }}
+    </h3>
+    <p>
+      <!-- vue调试无法捕获到变化
+           严格模式下会抛出错误
+       -->
+      <button @click="$store.state.num = 300">错误示范</button>
+      <button @click="$store.commit('changeNum', 10)">num递增10</button>
+      <button @click="$store.dispatch('changeNumAsync', 10)">异步递增10</button>
+    </p>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Add",
+  created() {
+    console.log(this.$store);
+  },
+};
+</script>
+
+<style scoped>
+.add {
+  width: 600px;
+  background-color: pink;
+  min-height: 200px;
+}
+</style>
+```
+
+```vue
+// 组件Reduce.vue
+<template>
+  <div class="reduce">
+    <p>这是一个减少组件</p>
+    <h3>仓库中num的值为 {{ num }}</h3>
+    <h3>用户的手机号是：{{ mobile }}, 用户的昵称是：{{ nickname }}</h3>
+    <p>
+      <button @click="changeNum(-10)">num递减10</button>
+      <button @click="changeNumAsync(-5)">异步num递减5</button>
+    </p>
+  </div>
+</template>
+
+<script>
+// 方法二：导入辅助函数
+import { mapState, mapMutations, mapActions, mapGetters } from "vuex";
+export default {
+  // 建议给每个组件都起一个名字 方便在vue调试器中查找使用
+  name: "Reduce",
+  computed: {
+    ...mapState(["num"]), // 将仓库里面的数据映射到计算属性中 映射后 可以直接通过num来访问
+    ...mapGetters(["nickname", "mobile"]), // 将getters里面的方法映射到计算属性中
+  },
+  methods: {
+    // 将仓库里面mutations的方法映射到methods里面 可以直接通过函数名调用
+    ...mapMutations(["changeNum"]),
+
+    // 将actions里面的方法映射到methods里面
+    ...mapActions(["changeNumAsync"]),
+  },
+};
+</script>
+
+<style scoped>
+.reduce {
+  width: 600px;
+  background-color: skyblue;
+  min-height: 200px;
+}
+</style>
 ```
 
