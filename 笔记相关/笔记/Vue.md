@@ -289,48 +289,6 @@ module.exports = {
 
 
 
-### 2.3、Vue-cli	
-
-​				Vue-cli又称Vue脚手架 它是第三方模块包 里面帮我们封装配置好了相关webpack 可以实现开箱即用 帮我们省去了繁琐的webpack配置
-
-```bash
-# 安装
-yarn global add @vue/cli
-
-# 检查是否安装成功
-vue -V
-
-# 使用	vue create 文件名  文件名不可以带有中文、空白、下划线等 文件名不可以是vue
-vue create vueDemo
-
-# 进入改文件下
-cd vueDemo		
-
-# 启动服务
-yarn serve
-```
-
-```js
-//在vue.config.js中设置端口号和自动打开
-module.exports = {
-  devServer: { // 自定义服务配置
-    open: true, // 自动打开浏览器
-    port: 3000	//端口号
-  },
-  lintOnSave:false  //关闭默认的代码差错功能 eslint
-}
-```
-
-使用Vue-cli搭建的项目文件目录如下：
-
-![image-20211103200324640](D:\github\笔记相关\Vue-cli项目文件目录.png)
-
-**注：src/main.js是为webpack的打包的入口**
-
-​		**src/App.vue是vue文件的跟组件**
-
-​		**public/index.html是浏览器显示的页面**
-
 
 
 ### 2.4、语法
@@ -2032,6 +1990,8 @@ export default {
 </style>
 ```
 
+![image-20211127193549198](D:\github\笔记相关\组件缓存.png)
+
 
 
 ### 2.12、组件插槽
@@ -2368,11 +2328,77 @@ axios({
 
 
 
-## 四、Vue路由(vue-router)
+## 四、Vue-cli	
+
+### 4.1、基础使用
+
+​				Vue-cli又称Vue脚手架 它是第三方模块包 里面帮我们封装配置好了相关webpack 可以实现开箱即用 帮我们省去了繁琐的webpack配置
+
+```bash
+# 安装
+yarn global add @vue/cli
+
+# 检查是否安装成功
+vue -V
+
+# 使用	vue create 文件名  文件名不可以带有中文、空白、下划线等 文件名不可以是vue
+vue create vueDemo
+
+# 进入改文件下
+cd vueDemo		
+
+# 启动服务
+yarn serve
+```
+
+```js
+//在vue.config.js中设置端口号和自动打开
+module.exports = {
+  devServer: { // 自定义服务配置
+    open: true, // 自动打开浏览器
+    port: 3000	//端口号
+  },
+  lintOnSave:false  //关闭默认的代码差错功能 eslint
+}
+```
+
+使用Vue-cli搭建的项目文件目录如下：
+
+![image-20211103200324640](D:\github\笔记相关\Vue-cli项目文件目录.png)
+
+**注：src/main.js是为webpack的打包的入口**
+
+​		**src/App.vue是vue文件的跟组件**
+
+​		**public/index.html是浏览器显示的页面**
+
+
+
+### 4.2、打包配置
+
+```bash
+# 打包  具体配置看package.json中script中的说明
+npm run build 
+```
+
+```js
+// vue.config.js的配置
+    module.exports = {
+      lintOnSave: false,
+      // 设置开发环境和生产环境的路径设置  生产环境是 相对路径  开发环境是绝对路径 
+      publicPath: process.env.NODE_ENV === 'production'? '' : '/',
+      // 文件中不生成map文件
+      productionSourceMap: false
+    }
+```
+
+
+
+## 五、Vue路由(vue-router)
 
 注：vue-router中自带的两个对象 **$route**和**$router**  前者用来**获取当前的路由**  而后者**获取的全局的路由**(本质是个vue实例对象) 我们可以对它使用相应方法
 
-### 4.1、基本使用
+### 5.1、基本使用
 
 ​			实现页面与组件之间的映射  
 
@@ -2431,7 +2457,7 @@ new Vue({
 
 
 
-### 4.2、重定向
+### 5.2、重定向
 
 ​			 当用户访问某个页面时 让页面跳转到另一个页面
 
@@ -2455,7 +2481,7 @@ const routes = [
 
 
 
-### 4.3、错误404设置
+### 5.3、错误404设置
 
 ​			  当用户访问不存在的路由是 回事一个空白页面 并且控制台会报错 所以这是我需要设置404页面来提醒用户
 
@@ -2488,7 +2514,7 @@ const routes = [
 
 
 
-### 4.4、路由模式的修改
+### 5.4、路由模式的修改
 
 ​			  由于路由模式默认的是hash模式 在路径上会自带一个# 看起来不好看 所以我们可以在实例化vuerouter对象时 进行更改
 
@@ -2501,7 +2527,7 @@ const router = new VueRouter({
 
 
 
-### 4.5、声明式导航-渲染
+### 5.5、声明式导航-渲染
 
 ​				当我们使用a链接实现页面的转换切换时  我们可以使用**router-link**实现声明式渲染 它会自动帮我们给当前激活的标签添加两个类 我们可以自行对该类进行设置 
 
@@ -2569,7 +2595,7 @@ export default {};
 </style>
 ```
 
-### 4.6、声明式导航-传值
+### 5.6、声明式导航-传值
 
 ​				在拼接的路径后面添加数据 该路由组件可以通过**$route.query.属性名** 和 **$route.params.属性名** 来获取到值数据
 
@@ -2619,7 +2645,7 @@ const routes = [
 
 
 
-### 4.7、编程式导航
+### 5.7、编程式导航
 
 ​			  我们除了可以使用vue-router中自带的router-link来实现声明式导航  我们也可以使用原生的方法来实现导航 即**编程式导航**
 
@@ -2662,7 +2688,7 @@ export default {
 
 
 
-### 4.8、编程式导航-传值
+### 5.8、编程式导航-传值
 
 ```vue
 <template>
@@ -2702,7 +2728,7 @@ export default {
 
 
 
-### 4.9、路由嵌套
+### 5.9、路由嵌套
 
 ​			 若在当前路由下 还需要进行切换页面 只需要在里面在嵌套一个路由即可 vue文件里面的写法相同 但需要在main.js配置
 
@@ -2736,7 +2762,7 @@ const routes = [
 
 
 
-### 4.10、路由守卫
+### 5.10、路由守卫
 
 ​				当用户访问某个路由时  我们需要对此进行权限设置 这时候我们就需要使用到**路由守卫**
 
@@ -2760,13 +2786,48 @@ router.beforeEach((to, from, next) => {
 ...
 ```
 
+​			**登录权限设置**
+
+```js
+// meta 为路由元信息 相当于给路由一个标记 这里我们根据这个标记设置路由登录是否需要权限
+const routes = [
+	...
+  {
+    path:"/login",
+    name:"login",
+    component: () => import ('@/views/login')
+  },
+  {
+    path: '/user/profile',
+    name: 'user-profile',
+    component: () => import('@/views/user-profile'),
+    meta: { neekLogin:true }
+  }
+	...
+]
 
 
-## 五、vue移动端组件库 - vant
+router.beforeEach((to, from, next) => {
+  // console.log(to);
+  if(to.meta.neekLogin){
+    if(store.state.user){
+      next()
+    }else{
+      next('/login')
+    }
+  }else{
+    next()
+  }
+})
+```
+
+
+
+## 六、vue移动端组件库 - vant
 
 详情请看：https://element.eleme.cn/#/zh-CN/
 
-### 5.1、vant自动适配组件
+### 6.1、vant自动适配组件
 
 ​		**postcss postcss-pxtorem**
 
@@ -2798,9 +2859,9 @@ module.exports = {
 
 
 
-## 六、vuex - 集中式数据状态管理器
+## 七、vuex - 集中式数据状态管理器
 
-### 6.1、使用配置
+### 7.1、使用配置
 
 ```bash
 # 安装
@@ -2837,13 +2898,13 @@ new Vue({
 
 
 
-### 6.2、store中每个对象的具体使用方法
+### 7.2、store中每个对象的具体使用方法
 
 ​			 **每个对象用法的图解**
 
 ![image-20211115205153978](D:\github\笔记相关\vuex里面各个对象用法图解.png)
 
-#### 6.2.1、state的使用
+#### 7.2.1、state的使用
 
 ​				**作用：用来存储共享数据的仓库**
 
@@ -2871,7 +2932,7 @@ export default {
 
 
 
-#### 6.2.2、mutations的使用
+#### 7.2.2、mutations的使用
 
 ​				**作用：唯一修改state里面数据的方法**
 
@@ -2931,7 +2992,7 @@ export default {
 
 
 
-#### 6.2.3、action的使用
+#### 7.2.3、action的使用
 
 ​				**作用：异步间接修改state数据**
 
@@ -2996,7 +3057,7 @@ export default {
 
 
 
-#### 6.2.4、getters的使用
+#### 7.2.4、getters的使用
 
 ​				**作用：将数据进行处理并且返回**
 
@@ -3051,7 +3112,7 @@ export default {
 
 
 
-### 6.3、案例：vuex的简单使用
+### 7.3、案例：vuex的简单使用
 
 ```js
 // src/store/index.js
@@ -3269,5 +3330,93 @@ export default {
   min-height: 200px;
 }
 </style>
+```
+
+
+
+## 八、token过期情况的处理
+
+### 8.1、后端只返回一个token
+
+​			若token过期只能重新登录
+
+
+
+### 8.2、后端返回两个token（一个长时间token(刷新token)，一个短时间token(验证token)）
+
+​			**解决思路 ： 若验证token过期时 我们用刷新token 访问刷新接口 获取新的验证token 并且替换原来的token  若刷新token过期 用户只能重新登录**
+
+```js
+import axios from 'axios'
+import store from '@/store'
+import jsonBig from 'json-bigint'
+import router from '@/router'
+
+export const request = axios.create({
+  baseURL:"http://toutiao-app.itheima.net",
+
+  transformResponse: [function (data) {
+    try {
+      // 如果转换成功则返回转换的数据结果
+      return jsonBig.parse(data)
+    } catch (err) {
+      // 如果转换失败，则包装为统一数据格式并返回
+      return data
+    }
+  }]
+})
+
+// 请求拦截器
+request.interceptors.request.use(function(config){
+  let { user } =store.state 
+  if(user && user.token){
+    config.headers.Authorization=`Bearer ${user.token}`
+  }
+  return config
+},function(err){
+  return Promise.reject(err)
+})
+
+// 响应拦截器  若返回的状态码为2** 则执行response里面的内容 若为其他则执行 error里面的内容
+request.interceptors.response.use(response=>{
+  // 必须要返回response 不然后端返回的数据接收不到
+  return response
+},async error=>{
+  // console.dir(error)
+  if(error.response && error.response.status === 401){
+    if(store.state.user && store.state.user.refresh_token){
+      try {
+        let { refresh_token } = store.state.user;
+        // console.log( refresh_token);
+
+        // 注意不要使用request请求 它会执行请求拦截器 会将我们的token值给转换
+        let { data } = await axios({
+          url:"http://toutiao-app.itheima.net/v1_0/authorizations",
+          method:"PUT",
+          headers:{
+            Authorization:`Bearer ${refresh_token}`
+          },
+        })
+        // console.log(data.data.token);
+        
+        // 保存到本地和vuex中
+        store.commit('setUser', {
+          token:data.data.token,
+          refresh_token
+        })
+
+        // 重新发起这次请求  error.config 为上次请求的请求体
+        return request(error.config)
+        
+      } catch (error) {
+        // console.log(error);
+        router.push('/login')
+      }
+    }else{
+      router.push('/login')
+    }
+  }
+  return Promise.reject(error)
+})
 ```
 
