@@ -624,6 +624,28 @@ export default {
 </script>
 ```
 
+注：组件中可以使用**.sync**实现组件数据的双向绑定
+
+```vue
+<!-- 父组件 -->
+ <LikeArticle
+ 	class="btn-item"
+	:articelID="article.art_id"
+	:articleNum.sync="article.attitude"
+/>
+
+<!-- 子组件
+	 获取传递来的参数
+ -->
+articleNum: {
+      type: Number,
+      required: true,
+},
+
+<!-- 触发父类中的update事件 -->
+this.$emit("update:articleNum", status);
+```
+
 
 
 #### 2.4.5、v-text与v-html -- 修改元素内容
