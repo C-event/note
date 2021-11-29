@@ -1221,7 +1221,7 @@ const dom = {
 
 
 
-### 2.6、Vue组件化
+### 2.6、Vue组件化（组件通信）
 
 ​			将Vue分为一个一个小组件 组件内的变量互不影响 防止了变量名的冲突 组件也可以进行复用优化开发
 
@@ -1521,6 +1521,31 @@ export default {
 }
 </style>
 ```
+
+
+
+#### 2.6.4、依赖注入
+
+​				**实现跨组价之间的数据传递**
+
+```vue
+// 传递值的配置
+provide: function () {
+    return {
+      articleId: this.articleId,
+    };
+},
+
+// 接收值的配置
+inject: {
+    articleId: {
+      type: [Number, String, Object],
+      default: null,      // 设置默认值
+    },
+},
+```
+
+
 
 
 
