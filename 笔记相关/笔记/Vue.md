@@ -3137,6 +3137,258 @@ export default {
 
 
 
+#### 7.2.5、modules的使用
+
+​				**modules是vuex的模块化  将仓库里面的内容进行模块化处理 方便后续的管理和维护** 
+
+```js
+// 			src/store/index.js
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+import user from './modules/user'
+import cate from './modules/cate'
+import setting from './modules/setting'
+
+Vue.use(Vuex)
+
+let store = new Vuex.Store({
+  // 模块化
+  modules: {
+    setting,user,cate
+  }
+})
+
+export default store
+```
+
+```js
+// src/modules/user.js
+import { setItem,getItme } from '@/utils/storage'
+import { Message } from 'element-ui';
+import { login } from '@/api/user'
+const SHOT_USER = 'SHOT_USER'
+
+export default {
+  namespaced: true,
+  state:()=>({
+    userInfo:getItme(SHOT_USER) || {},
+  }),
+  mutations:{
+    setUserInfo(state,data){
+      state.userInfo = data
+      setItem(SHOT_USER,data)
+    },
+  },
+  actions:{
+    async login(context,payload){
+      try {
+      let {data,meta} = await login(payload)
+      //  console.log(data)
+      if(meta.status !== 200) {
+        Message.error(meta.msg)
+        return Promise.reject(meta.msg)
+      }
+      context.commit('setUserInfo',data)
+      } catch (error) {
+        // console.log(error);
+        Message.error('登录失败，请稍后重试')
+      }
+    },
+  },
+  getters: {
+    token:state=>state.userInfo.token,
+    username:state=>state.userInfo.username
+  }
+}
+```
+
+```js
+// src/modules/setting.js
+export default {
+  namespaced: true,
+  state:()=>({
+    isCollapse:false,
+  }),
+  mutations:{
+    toggle(state){
+      state.isCollapse = !state.isCollapse
+    },
+  },
+  actions:{},
+  getters: {}
+}
+```
+
+```js
+// src/modules/cate.js
+import { getCateList } from '@/api/cate'
+
+export default {
+  namespaced: true,
+  state:()=>({
+    cateList:[]
+  }),
+  mutations:{
+    setCateList(state,data){
+      state.cateList = data
+    }
+  },
+  actions:{
+    async getCate({commit}){
+      let { data } = await getCateList()
+      // console.log(data);
+      commit('setCateList',data)
+    }
+  },
+  getters: {}
+}
+```
+
+
+
+**使用模块化后四个核心概念发生了变化**
+
+##### ①、未开启命名空间  namespaced：false
+
+​		若未开启命名空间下 默认问的是根路径下的内容   而action、mutation、getters都不会产生影响 因为vue自动模块中的这些内容提升到根模块下 
+
+​		**注：但出现同名的情况则会出现问题**
+
+​		state使用时就发生了变化：
+
+```vue
+<script>
+export default {
+ ...
+  computed: {
+    //...mapState(['isCollapse'])  未模块化之前
+    // 模块化后  
+    ...mapState({
+        isCollapse:state=>state.setting.isCollapse
+    }),
+  },
+ ...
+};
+</script>
+```
+
+
+
+**②、开启命名空间  namespaced：true**
+
+​		若开启命名空间 则state、action、mutation、getters里面的用法全都会发生改变 无法在通过根路径下访问到该变量
+
+​			**state用法：**
+
+```vue
+<script>
+export default {
+ data(){
+     return {
+         // data:this.$store.state.isCollapse  模块化前
+         // 模块化后
+         data : this.$store.state.setting.isCollapse
+     }
+ }
+  computed: {
+    //...mapState(['isCollapse'])  未模块化之前
+    // 模块化后  方式一
+    ...mapState({
+        isCollapse:state=>state.setting.isCollapse
+    }),
+    // 模块化后  方式二  只能在开启模块化命名下使用
+    ...mapState('setting',['isCollapse'])
+  },
+ ...
+};
+</script>
+```
+
+​			**getters用法**
+
+```js
+router.beforeEach((to, from, next) => {
+  let whiteList = ['/login','/404']
+  if(whiteList.includes(to.path)){
+    next()
+  }else{
+    // if(store.getters.token){  模块化前
+    // 模块化后 
+    if(store.getters['user/token']){
+      next()
+    }else{
+      // 登录之后跳转到之前要进来的页面
+      next('/login?to='+to.path)
+    }
+  }
+})
+
+  computed: {
+    // ...mapGetters(["isCollapse"]),  模块化前
+    // 模块化后
+    ...mapGetters("user", ["username"]),
+  },
+```
+
+​			**mutation用法**
+
+```vue
+<template>
+<!-- @click="$store.commit('toggle')" 模块化前-->
+<el-button
+        v-else
+        @click="$store.commit('setting/toggle')"
+        type="primary"
+        size="small"
+        icon="el-icon-s-fold"
+></el-button>
+</template>
+
+<script>
+	methods:{
+        //...mapMutation(['toggle'])  模块化前
+        // 模块化后
+        ...mapMutation(‘setting’，['toggle']) 
+    }
+</script>
+```
+
+​			**action用法**
+
+```vue
+<template>
+<!-- @click="$store.dispatch('toggle')" 模块化前-->
+<el-button
+        v-else
+        @click="$store.dispatch('setting/toggle')"
+        type="primary"
+        size="small"
+        icon="el-icon-s-fold"
+></el-button>
+</template>
+
+<script>
+export default {
+  ...
+  methods: {
+    // ...mapActions(["getCate"]), 模块前
+    // 模块后
+    ...mapActions("cate", ["getCate"]),
+  },
+ ...
+};
+</script>
+```
+
+图解如下：
+
+![](D:\github\笔记相关\vuex模块化后四个核心内容的变化.png)
+
+
+
+
+
 ### 7.3、案例：vuex的简单使用
 
 ```js
@@ -3356,6 +3608,8 @@ export default {
 }
 </style>
 ```
+
+**具体项目可以查看 ： E:\前端资料\前端17期\03-人资\demo**
 
 
 
