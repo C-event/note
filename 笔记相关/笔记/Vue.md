@@ -2301,6 +2301,77 @@ export default {
 
 
 
+### 2.14、混入（mixin）
+
+概念：混入 (mixin) 提供了一种非常灵活的方式，来分发 Vue 组件中的可复用功能。一个混入对象可以包含任意组件选项。当组件使用混入对象时，所有混入对象的选项将被“混合”进入该组件本身的选项。
+
+用法：**在src/mixin/list.js  里面存放各个组件中复用的属性和方法 实现复用** 
+
+```js
+export default {
+  data() {
+    return {
+      tableData: [],  // 列表
+      totalNum:0, // 总数
+      isShow:false, // 弹框是否打开
+      queryData:{  // 列表的查询参数
+        pagenum:1,
+        pagesize:10
+      }
+    }
+  },
+  methods: {
+    // 每页数量更换事件
+    sizeChange(val){ // val最新每页数量
+      this.queryData.pagesize = val
+      this.initData()
+    },
+    // 页码更换事件
+    currentChange(val){ // val最新的页码
+      this.queryData.pagenum  = val
+      this.initData()
+    }
+  },
+  created () {
+    this.initData()
+  },
+}
+
+```
+
+```vue
+<script>
+// src/views/goods/list/index.vue    
+import list from "@/mixins/list";
+export default {
+ ...
+  data() {
+    return {
+      // 混入的如果是引用数据类型 不相同的会合并里面的内容 相同的会覆盖
+      // 混入的如果是简单数据类型 相同的变量以页面里面的内容为主
+      queryData: {
+        query: "",
+      },
+      catelist: [],
+    };
+  },
+
+  mixins: [list],
+  ...
+  filters: {
+    formate(val) {
+      let date = new Date(val * 1000);
+      return date.toLocaleString();
+    },
+  },
+};
+</script>
+```
+
+**注：若使用混入的时候  data里面是引用数据类型 不相同的会合并里面的代码 相同的会覆盖掉页面里面的  若data里面是简单数据类型 会以页面里面的数据为主**
+
+
+
 ## 三、axios使用
 
 特点
