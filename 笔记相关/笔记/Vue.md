@@ -248,6 +248,10 @@ module.exports = {
 
 ​				Vue是渐进式javacript框架, 一套拥有自己规则的语法
 
+​				Vue三大核心：
+
+![image-20211203213831878](D:\github\笔记相关\Vue三大核心.png)
+
 
 
 **Vue使用方法：** **传统开发模式**：基于html文件开发Vue 
