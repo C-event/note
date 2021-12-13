@@ -2923,6 +2923,153 @@ router.beforeEach((to, from, next) => {
 
 
 
+### 5.11、权限管理（重点）
+
+#### 5.11.1、基于RBAC的权限管理
+
+​					**RBAC：**即：基于角色的权限控制。通过角色关联用户，角色关联权限的方式间接赋予用户权限。
+
+![](D:\github\笔记相关\RBAC权限管理图解.png)
+
+#### 5.11.2、权限管理思路一
+
+![](D:\github\笔记相关\前端权限控制思路1.png)
+
+**页面权限管理**
+
+```js
+//src/store/modules/permission.js
+import { constantRoutes, asyncRoutes } from '@/router'
+
+const state = {
+  routes: constantRoutes	// 定义路由数组
+}
+
+const mutations = {
+    // 设置路由数组
+  setRoutes(state, newRoutes) {
+    state.routes = [...constantRoutes, ...newRoutes]
+  }
+}
+
+const actions = {
+    // 根据用户权限筛选出符合条件的数组
+  filterRoutes(context, menus) {
+    const routes = []
+    menus.forEach(item => {
+      const res = asyncRoutes.filter(routes => {
+        return routes.name === item
+      })
+      routes.push(...res)
+    })
+    // 一定要注意吧 404 页面配置到路由数组的最后 不然动态路由刷新是会出现404页面
+    routes.push({ path: '*', redirect: '/404', hidden: true })
+    context.commit('setRoutes', routes)
+      // 切记一定要返回该数组
+    return routes
+  }
+}
+
+export default {
+  namespaced: true,
+  state,
+  mutations,
+  actions
+}
+```
+
+```js
+// src/permission.js  权限配置管理
+// 路由导航逻辑
+import router from '@/router'
+import store from '@/store'
+
+// 加载条插件
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
+const whiteList = ['/login', '/404']
+router.beforeEach(async(to, from, next) => {
+  NProgress.start()
+  if (store.getters.token) {
+    if (to.path === '/login') {
+      next('/')
+    } else {
+      if (!store.state.user.userInfo.userId) {
+        const { roles } = await store.dispatch('user/getUserProfile')
+        const routes = await store.dispatch('permission/filterRoutes', roles.menus)
+        // 动态添加路由数组规则
+        router.addRoutes(routes)
+        // 使用完router.addRoutes后需要使用next(/路径) 重新再走一遍  因为路由还没有配置好 会找不到页面
+        next(to.path)
+      } else {
+        next()
+      }
+    }
+  } else {
+    if (whiteList.includes(to.path)) {
+      next()
+    } else {
+      next(`/login?to=${to.fullPath}`)
+    }
+  }
+  NProgress.done()
+})
+
+router.afterEach(() => {
+  NProgress.done()
+})
+```
+
+**按钮权限管理:** 定义完全局混入后可以在组件中使用v-if='!checkPermission('employees-import')'  **切记传递的内容一定要与后端字段相同**
+
+```js
+// src/mixins 定义全局混入
+import store from '@/store'
+
+export default {
+  methods: {
+    checkPermission(str) {
+      const { userInfo } = store.state.user
+      if (userInfo.roles && userInfo.roles.points.length) {
+        return userInfo.roles.points.includes(str)
+      }
+      return false
+    }
+  }
+}
+
+// main.js 中配置全局混入
+import checkPermission from '@/mixins'
+Vue.mixin(checkPermission)
+```
+
+注：每次执行退出功能是都需要将**路由数组（routes）**给清空，防止之后不同权限的人登录导致权限管理失效（通过路径可以访问到未拥有权限的页面）
+
+```js
+// src/store/modules/user
+...
+logout({ commit }) {
+    commit('removeToken')
+    commit('removeUserInfo')
+    // src/router目录下index.js中的方法
+    resetRouter()
+    // root:true是设置当前的查找根路径 vuex中调用兄弟模块里面的方法
+    commit('permission/setRoutes', [], { root: true })
+  } 
+...
+```
+
+
+
+#### 5.11.3、权限管理思路二
+
+![](D:\github\笔记相关\前端权限控制思路-2.jpg)
+
+**动态数组里面的内容 都是由后端直接返回给我们的 我只需要要将里面的字符串 转换成动态数组（参考若依后端框架）** 
+
+
+
 ## 六、vue移动端组件库 - vant
 
 详情请看：https://element.eleme.cn/#/zh-CN/
