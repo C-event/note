@@ -285,11 +285,11 @@
 
 ​												函数名   使用时间        运动曲线         延迟时间        循环次数        是否逆循环	最后停止的位置
 
-​							详细图解：![](C:\Users\12286\Desktop\我的文件\笔记相关\动画用法详解.png)
+​							详细图解：![](../动画用法详解.png)
 
 ​						**注：animation-iteration-count:steps（）.steps是将动画分为几个部分来进行。当设置无线循环，最后一步会无法显示，所以需要多设置一个，并且需要将宽度进行相应增大，实例如下。**
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\steps实例.png)
+![](../steps实例.png)
 
 
 
@@ -335,7 +335,7 @@
 - ​	实例：**（品优购(shopping)loge的seo优化）**
 
 
-​				![](C:\Users\12286\Desktop\我的文件\笔记相关\loge的seo优化.png)
+​				![](../loge的seo优化.png)
 
 ​				
 
@@ -580,7 +580,7 @@ div span{
 
 tips：vs插件cssrem 可以快速将px单位变成rem单位，使用方法如下：
 
-<img src="C:\Users\12286\Desktop\我的文件\笔记相关\cssroot使用.png" style="zoom:80%;" />
+<img src="../cssroot使用.png" style="zoom:80%;" />
 
 
 

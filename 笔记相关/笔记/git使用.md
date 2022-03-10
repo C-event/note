@@ -108,7 +108,7 @@ git remote add origin 远程仓库地址(https或者是ssh)
 
 ​										 2、打开码云或者github将复制的内容添加到ssh公钥中即可
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\git配置ssh公钥步骤.png)
+![](../git配置ssh公钥步骤.png)
 
 
 

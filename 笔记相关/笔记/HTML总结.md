@@ -88,7 +88,7 @@
 
 ​			主要分为六大类：header、nav、article、aside、footer、section，在网页中所在的区域具体如下：
 
-​                                              ![](C:\Users\12286\Desktop\我的文件\笔记相关\语义化标签.png)
+​                                              ![](../语义化标签.png)
 
 ​			
 

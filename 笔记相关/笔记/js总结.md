@@ -8,7 +8,7 @@
 
 ​			Js是运行在客户端的脚本语言，它是由ECMAScript语法、DOM、BOM一起组成的。
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\js的组成.png)
+![](../js的组成.png)
 
 **ECMAScript语法**：是由ECMA 国际（ 原欧洲计算机制造商协会）进行标准化的一门编程语言，这种语言在万维网上应用广 泛，它往往被称为 JavaScript 或 JScript，但实际上后两者是 ECMAScript 语言的实现和扩展。ECMAScript 规定了JS的编程语法和基础核心知识，是所有浏览器厂商共同遵守的一套JS语法工业标准。
 
@@ -139,7 +139,7 @@ var boolean2 = Boolean(str) // boolean2 = true;
 
 ​		+、-、*、%（取余数）、/（除，保留小数）等。
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\算数运算符.png)
+![](../算数运算符.png)
 
 **自增、自减、前置增（减）、后置增（减）；**
 
@@ -154,7 +154,7 @@ var newnum = num++ + ++num;	//num = 8 后增（减）：延后加，在下步才
 
 ##### 4.2、比较运算符
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\比较运算符.png)
+![](../比较运算符.png)
 
 
 
@@ -162,7 +162,7 @@ var newnum = num++ + ++num;	//num = 8 后增（减）：延后加，在下步才
 
 ​						**逻辑与比逻辑非优先级高 逻辑非优先级最高**
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\逻辑运算符.png)
+![](../逻辑运算符.png)
 
 
 
@@ -546,7 +546,7 @@ Math.sqrt();					//求平方根
 
 **相关舍入**
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\math相关舍入.png)
+![](../math相关舍入.png)
 
 注：在使用round的时候，0.5需要注意，它是会往大的数取，**即1.5会取2，-1.5会取-1**； 
 
@@ -653,17 +653,17 @@ str.split("");				//将字符串转换成数组[a,b,c,d,e,f]   原字符串不�
 
 ​			堆：存储复杂类型(对象)，一般由程序员分配释放，若程序员不释放，由垃圾回收机制回收。复杂数据类型存放到堆里面
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\栈和堆图解.png)
+![](../栈和堆图解.png)
 
 ​	
 
 ​	**简单数据类型存储**：首先在栈中开辟一个空间，里面存放的简单数据类型的值，此时这个变量就指向这个内存，每次调用的时候都去从这个内存中取。图解如下
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\简单数据存储.png)
+![](../简单数据存储.png)
 
 ​		**复杂数据类型存储**：首先复杂类型都是存储在堆中，现在堆中开辟一个空间，存放着是复杂数据类型，其次再在栈中开辟一个空间里面存放的是这个复杂数据在堆中地址，最终这个变量还是指向栈中的地址。图解如下
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\复杂数据类型存储.png)
+![](../复杂数据类型存储.png)
 
 
 
@@ -739,7 +739,7 @@ ul.innerHTML(str);
 
 #### 二、事件动作
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\js中的事件.png)
+![](../js中的事件.png)
 
 ​			**事件中只有四个事件不会触发冒泡：mouseenter mouseleave onfocus onblur**
 
@@ -796,7 +796,7 @@ btn.removeEventListener("click",clickthis);
 
 ​				3、冒泡阶段
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\DOM事件流.png)
+![](../DOM事件流.png)
 
 ​			**如何判断事件是捕获阶段还是冒泡阶段**
 
@@ -956,7 +956,7 @@ clearInterval(timer2);			//删除多次执行定时器
 
 ​		location对象的相关属性：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\location对象属性.png)
+![](../location对象属性.png)
 
 ​				**注意：需要重点了解href和search。**
 
@@ -964,7 +964,7 @@ clearInterval(timer2);			//删除多次执行定时器
 
 ​		location对象的方法：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\location对象方法.png)
+![](../location对象方法.png)
 
 
 
@@ -985,7 +985,7 @@ if((navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
 
 ##### 1.6、history 对象
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\history对象相关方法.png)
+![](../history对象相关方法.png)
 
 
 
@@ -1015,7 +1015,7 @@ window.pageY;				//返回的是鼠标(手指)在页面y轴上的距离
 
 ​		**执行过程**：当有异步事件的时候，先将事件交给对应的异步处理程序取处理，当异步处理程序完成后，将异步事件加入到事件队列，事件队列的顺序是按进来的前后排序的，当主线程上的同步任务完成后再去从事件队列中取事件，依次执行。具体的执行过程如下图所示：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\js执行机制.png)
+![](../js执行机制.png)
 
 ##### 2.3、事件循环(EventLoop)
 
@@ -1094,7 +1094,7 @@ element.offsetWidth			//返回元素的宽度 包括padding和border
 element.offsetHeight		//返回元素的高度 包括padding和border
 ```
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\offset常见属性.png)
+![](../offset常见属性.png)
 
 
 
@@ -1107,11 +1107,11 @@ element.clientWidth			//返回元素的宽度 包括padding 不包括border
 element.clientHeight		//返回元素的高度 包括padding 不包括border
 ```
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\client相关属性.png)
+![](../client相关属性.png)
 
 client 和 offset图解：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\client和offset图解.png)
+![](../client和offset图解.png)
 
 
 
@@ -1124,11 +1124,11 @@ element.scrollWidth			//返回自身实际的宽度 包括padding 不包括borde
 element.scrollHeight		//返回自身实际的高度 包括padding 不包括border
 ```
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\scroll相关属性.png)
+![](../scroll相关属性.png)
 
 具体图解如下：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\scroll图解.png)
+![](../scroll图解.png)
 
 
 
@@ -1531,7 +1531,7 @@ m.lister();										//当父类和子类中都有相同的方法时 就近原�
 
 ​		原型对象是每个构造函数都可具有的对象，通过**构造方法.prototype**指向该原型对象，原型对象可以通过**构造函数.prototype.constructor**指向该构造函数
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\原型对象图解.png)
+![](../原型对象图解.png)
 
 
 
@@ -1539,7 +1539,7 @@ m.lister();										//当父类和子类中都有相同的方法时 就近原�
 
 ​			构造函数通过new创造出来的实力化对象可以通过**实例对象.`__proto__`**取指向该构造函数的原型对象
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\原型图解.png)
+![](../原型图解.png)
 
 
 
@@ -1589,7 +1589,7 @@ var son = new Son("张三",18,99);
 
 图解如下：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\原型继承方法图解.png)
+![](../原型继承方法图解.png)
 
 
 
@@ -1597,7 +1597,7 @@ var son = new Son("张三",18,99);
 
 ​			就是在通过原型继承的过程的中，通过`__proto__`一步一步向上查找的过程，最终找到了Object对象，而Object.`__proto__`的对象原型则返回null
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\原型链图解.png)
+![](../原型链图解.png)
 
 ```js
 function Star(uname,age){
@@ -1635,7 +1635,7 @@ Object.prototype.b=function();
 var o = new Foo();		//问o实例可以访问a，b的那个函数	答：只能访问到object上的b方法 访问不到a方法 图解如下
 ```
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\原型面试题图解.png)
+![](../原型面试题图解.png)
 
 **注：1、所有构造函数(Array、Object等)的`__proto__`都是等于Function.prototype   而Function.`__proto__`也等于Function.prototype**
 
@@ -1946,7 +1946,7 @@ div.innerHTML = txa.value.replace(/激情|gay/gi, "<span style= 'color:red'>$&</
 
 其他相关图解如下：
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\正则表达式相关.png)
+![](../正则表达式相关.png)
 
 
 
@@ -1960,7 +1960,7 @@ div.innerHTML = txa.value.replace(/激情|gay/gi, "<span style= 'color:red'>$&</
 
 ​					const	是es6新增声明常量的方法 		只要声明	该常量是不可以改变的
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\es6变量声明关键字.png)
+![](../es6变量声明关键字.png)
 
 
 
@@ -2059,9 +2059,9 @@ sum(1,2,3,4,5,6);
 ③ .then() 方法用来预先指定成功和失败的回调函数 
 
  	p.then(成功的回调函数，失败的回调函数) 
-
+ 	
  	p.then(result => { }, error => { }) 
-
+ 	
  	调用 .then() 方法时，成功的回调函数是必选的、失败的回调函数是可选的
 
 **注：**回调地狱就是回调函数里面嵌套回调函数 一旦某个模块出现问题 整个程序都会崩溃 **可读性和可复用性都很差**
@@ -2338,7 +2338,7 @@ $.ajaxPrefilter(function (options) {
 <button type = "submit">提交</button>
 ```
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\form表单target属性.png)
+![](../form表单target属性.png)
 
 
 
@@ -2367,7 +2367,7 @@ $.ajaxPrefilter(function (options) {
 <button type = "submit">提交</button>
 ```
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\form表单enctype属性.png)
+![](../form表单enctype属性.png)
 
 
 
@@ -2886,7 +2886,7 @@ xhr.upload.onload = function() {
 
 ​			如果两个页面协议、域名、端口都相同，我们就说这两个页面同源
 
-![](C:\Users\12286\Desktop\我的文件\笔记相关\同源判断.png)
+![](../同源判断.png)
 
 
 
