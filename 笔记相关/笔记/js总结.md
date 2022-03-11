@@ -78,7 +78,7 @@ num instanceof Number;					//true
 
 ##### 		3.1、隐式转换（通用）
 
-​				通过+、-、*、%、>=、<=、！=等运算，会将元素进行隐式转换，转换后的元素类型默认是字符型，若用是比较大小则默认为数字型。例子如下：
+​				通过+、-、*、%、>=、<=、！=等运算，会将元素进行隐式转换，转换后的元素类型默认是字符型（即默认调用toString方法），若用是比较大小则默认为数字型。例子如下：
 
 ```js
 var str="12";
@@ -629,7 +629,7 @@ str.split("");				//将字符串转换成数组[a,b,c,d,e,f]   原字符串不�
 |                   arr.concat(...value)                    |          合并多个数组          |       否       |    合并完成的新数组    |
 |                       arr.reverse()                       |            翻转数组            |       是       |      颠倒后的数组      |
 |                   arr.sort((a,b)=>a-b)                    |   数组排序(a-b升序  b-a降序)   |       是       |      排序后的数组      |
-|                     arr.flat([depth])                     |           扁平化数组           |       否       |     扁平后的新数组     |
+|                        arr.flat()                         |           扁平化数组           |       否       |     扁平后的新数组     |
 
 
 
@@ -1021,7 +1021,7 @@ window.pageY;				//返回的是鼠标(手指)在页面y轴上的距离
 
 ​			主线程执行完毕，查询任务队列，取出一个任务，推入主线程处理。重复这个行为就是事件循环
 
-![image-20211027193856664](D:\github\笔记相关\EventLoop图解.png)
+![image-20211027193856664](../EventLoop图解.png)
 
 
 
@@ -1744,7 +1744,7 @@ Object.defineProperty(obj,"value",{
     writable:false,						//设置value是否可以修改 false是不可以修改 true是可以修改 默认为false
     enumerable:false,					//设置value是否可以被遍历到 false是不可以遍历 true是可以遍历 默认是false
     configurable:false					//设置value属性或者其他特性(writable、value、enumerable、configurable)是否可以被修改 默认是false
-})
+})nmhg
 ```
 
 
@@ -2025,8 +2025,6 @@ var str = `${name}今年${age}岁`; 			//zs今年22岁
 
 
 
-guh
-
 ### 10.5、拓展运算符
 
 ```js
@@ -2210,7 +2208,7 @@ getfile();
 
 执行顺序：同步 > 异步 > 微任务 > 宏任务 > 宏任务下的微任务 > 下一个宏任务 > ............
 
-![image-20211027195414742](D:\github\笔记相关\宏任务与微任务执行过程.png)
+![image-20211027195414742](../宏任务与微任务执行过程.png)
 
 
 
@@ -2926,7 +2924,7 @@ $.ajax({
 		jsonp: 'callback',					// 发送到服务端的参数名称，默认值为 callback  一般省略不写
 		jsonpCallback: 'abc',				// 自定义的回调函数名称，默认值为 jQueryxxx 格式  一般省略不写
 		success: function(res) {
-		console.log(res)
+			console.log(res)
 		}
 })
 ```
