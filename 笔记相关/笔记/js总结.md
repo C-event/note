@@ -8,7 +8,7 @@
 
 ​			Js是运行在客户端的脚本语言，它是由ECMAScript语法、DOM、BOM一起组成的。
 
-![](../js的组成.png)
+![](../img/js的组成.png)
 
 **ECMAScript语法**：是由ECMA 国际（ 原欧洲计算机制造商协会）进行标准化的一门编程语言，这种语言在万维网上应用广 泛，它往往被称为 JavaScript 或 JScript，但实际上后两者是 ECMAScript 语言的实现和扩展。ECMAScript 规定了JS的编程语法和基础核心知识，是所有浏览器厂商共同遵守的一套JS语法工业标准。
 
@@ -163,6 +163,21 @@ var newnum = num++ + ++num;	//num = 8 后增（减）：延后加，在下步才
 ​						**逻辑与比逻辑非优先级高 逻辑非优先级最高**
 
 ![](../img/逻辑运算符.png)
+
+**ES2020中新增可选链的特性 即**
+
+```js
+const obj = {
+  a:1,
+  b:{
+    c:2
+  }
+}
+
+const b = obj?.b?.c // 结果为c =》 obj && obj.b && obj.c
+```
+
+
 
 
 
@@ -2220,7 +2235,45 @@ getfile();
 
 答案：156234789
 
+面试题二：
 
+```js
+Promise.resolve().then(() => {
+    console.log(0);
+    return Promise.resolve(4); // Promise.resolve()会产生两次微任务 
+}).then((res) => {
+    console.log(res)
+})
+
+// 上面代码可转换成
+//Promise.resolve().then(() => {
+//    console.log(0);
+//    return 4;
+//})
+//.then()
+//.then()
+//.then((res) => {
+//    console.log(res)
+//})
+
+Promise.resolve().then(() => {
+    console.log(1);
+}).then(() => {
+    console.log(2);
+}).then(() => {
+    console.log(3);
+}).then(() => {
+    console.log(5);
+}).then(() =>{
+    console.log(6);
+})
+```
+
+答案：0123456
+
+
+
+解答：**Js引擎为了让microtask尽快的输出，做了一些优化，连续的多个then(3个)如果没有reject或者resolve会交替执行then而不至于让一个堵太久完成用户无响应，不单单v8这样其他引擎也是这样，因为其实promuse内部状态已经结束了。这块在v8源码里有完整的体现**
 
 # Ajax
 

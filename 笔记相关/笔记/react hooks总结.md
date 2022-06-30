@@ -81,6 +81,23 @@ function father(
 
 ##### 3、useContext		
 
+​	 是实现组件之间实现状态共享 通常搭配store使用
+
+```jsx
+//useStore.js
+import { useContext } from "react"
+import { MobXProviderContext } from "mobx-react"
+
+const useStores = (name) => useContext(MobXProviderContext)[name]
+
+export { useStores }
+
+// 页面使用
+import { useStore } from "./useStore.js"
+
+const { login } = useStore('auth')
+```
+
 
 
 ##### 4、useRef
