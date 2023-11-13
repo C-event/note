@@ -571,7 +571,7 @@ Math.sqrt();					//求平方根
 
 ```js
 var str = "abcc";
-str.substr("2",1);						//截取字符串 从索引号2开始，向后截取1一个元素 返回的是截取的字符串
+str.substr("2",1);						//截取字符串 从索引号2开始，向后截取1一个元素 返回的是截取的字符串 已被弃用 用substring代替
 str.replace("c",d);						//替换字符串 从头开始c 把找到的第一个元素的设置为d 并返回一个新的字符串
 var newstr = "c";				
 newstr.concat(str);						//和数组方法相同  将str加入到newstr中 返回的是新字符串 需要用变量来接收
@@ -1895,6 +1895,23 @@ function deepclone(newobj,oldobj){
     }
 }
 ```
+
+​	2、使用JSON.stringify()可以实现深拷贝 
+
+​			但会出现问题undefined 和 函数在拷贝的时候会丢失
+
+```js
+// 时间对象在拷贝之后会丢失 无法调用getTIme（）等方法 但可以调用toString（）等方法
+let obj = {
+  date: new Date()
+}
+
+typeOf obj.data === 'object' // true
+let obj1 = JSON.parse(JSON.stringify(obj))
+typeOf obj1.data // string
+```
+
+​	3、原生提供的深拷贝方法 --- structuredClone() （具体用法查看MDN文档）
 
 
 
